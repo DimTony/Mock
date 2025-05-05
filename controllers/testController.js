@@ -523,6 +523,90 @@ exports.bulkCreateRoles = async (req, res) => {
   }
 };
 
+exports.getRoleOptions = async (req, res) => {
+  try {
+    const roles = [
+      {
+        _id: "68144db293c09ca4858d9891",
+        name: "User",
+      },
+      {
+        _id: "68144db293c09ca4858d9892",
+        name: "Admin",
+      },
+      {
+        _id: "68144db293c09ca4858d9893",
+        name: "Office",
+      },
+    ];
+    return res.status(200).json({ success: true, data: roles });
+
+    // res.status(200).json({
+    //   status: "success",
+    //   data: mockRolesData,
+    // });
+  } catch (error) {
+    console.error("Error in getRoleOptions:", error);
+    handleError(res, error);
+  }
+};
+
+exports.getBranchCodeOptions = async (req, res) => {
+  try {
+    const branchCodes = [
+      {
+        _id: "68144db293c09ca4858d9891",
+        name: "BR001",
+      },
+      {
+        _id: "68144db293c09ca4858d9892",
+        name: "BR002",
+      },
+      {
+        _id: "68144db293c09ca4858d9893",
+        name: "BR099",
+      },
+    ];
+    return res.status(200).json({ success: true, data: branchCodes });
+
+    // res.status(200).json({
+    //   status: "success",
+    //   data: mockRolesData,
+    // });
+  } catch (error) {
+    console.error("Error in getBranchCodeOptions:", error);
+    handleError(res, error);
+  }
+};
+
+exports.getCountryOptions = async (req, res) => {
+  try {
+    const countries = [
+      {
+        _id: "68144db293c09ca4858d9891",
+        name: "Nigeria",
+      },
+      {
+        _id: "68144db293c09ca4858d9892",
+        name: "Namibia",
+      },
+      {
+        _id: "68144db293c09ca4858d9893",
+        name: "Sierra Leone",
+      },
+    ];
+    return res.status(200).json({ success: true, data: countries });
+
+    // res.status(200).json({
+    //   status: "success",
+    //   data: mockRolesData,
+    // });
+  } catch (error) {
+    console.error("Error in getCountryOptions:", error);
+    handleError(res, error);
+  }
+};
+
 // === ERROR HANDLER ===
 
 const handleError = (res, error) => {
