@@ -466,6 +466,69 @@ exports.getAllRequests = async (req, res) => {
   }
 };
 
+exports.getAuditLogs = async (req, res) => {
+  try {
+    const logs = Array.from({ length: 50 }, (_, i) => ({
+      id: `log-${i + 1}`,
+      fullName: `User ${i + 1}`,
+      username: `user${i + 1}`,
+      loginDateTime: new Date(Date.now() - i * 86400000) // i days ago
+        .toISOString()
+        .split("T")[0],
+      country: ["Nigeria", "Ghana", "Kenya", "South Africa", "Egypt"][i % 5],
+      actionPerformed: [
+        "Login",
+        "Created document",
+        "Updated profile",
+        "Downloaded report",
+        "Changed settings",
+      ][i % 5],
+    }));
+
+    res.status(200).json({
+      status: "success",
+      data: logs,
+    });
+  } catch (error) {
+    console.error("Error in getAuditLogs:", error);
+    handleError(res, error);
+  }
+};
+
+exports.getEmailTemplates = async (req, res) => {
+  try {
+    const templates = Array.from({ length: 50 }, (_, i) => ({
+      _id: `template-${i + 1}`,
+      // country: `Country ${i + 1}`,
+      branchCode: `BR${i + 1}`,
+      country: ["Nigeria", "Ghana", "Kenya", "South Africa", "Egypt"][i % 5],
+      subject: [
+        "FX Transfers",
+        "Service Downtime",
+        "Software Update",
+        "Service",
+        "Service Launch",
+      ][i % 5],
+      notificationMessage: [
+        "Dear Branch Manager, ...",
+        "Dear Group Head, ...",
+        "Dear Unit Head, ...",
+        "Dear Teller, ...",
+        "Dear Relationship Manager, ...",
+      ][i % 5],
+      status: ["Published", "Draft", "Published", "Draft", "Published"][i % 5],
+    }));
+
+    res.status(200).json({
+      status: "success",
+      data: templates,
+    });
+  } catch (error) {
+    console.error("Error in getEmailTemplates:", error);
+    handleError(res, error);
+  }
+};
+
 exports.getAllRoles = async (req, res) => {
   try {
     const roles = await Role.find();

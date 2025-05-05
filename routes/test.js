@@ -13,6 +13,8 @@ const {
   getRoleOptions,
   getBranchCodeOptions,
   getCountryOptions,
+  getAuditLogs,
+  getEmailTemplates,
 } = require("../controllers/testController");
 
 router.post("/users/add", createUser);
@@ -20,6 +22,10 @@ router.get("/users", getAllUsers);
 router.put("/users/:id", updateUser);
 router.get("/users/:id", getUserById);
 router.post("/users/bulk", bulkCreateUsers);
+
+router.get("/logs", getAuditLogs);
+
+router.get("/templates/email", getEmailTemplates);
 
 router.get("/requests", getAllRequests);
 
