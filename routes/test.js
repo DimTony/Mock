@@ -31,5 +31,4 @@ router.get("/options/roles", getRoleOptions);
 router.get("/options/countries", getCountryOptions);
 router.get("/options/branch-codes", getBranchCodeOptions);
 
-
 module.exports = router;

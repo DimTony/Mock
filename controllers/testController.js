@@ -385,6 +385,10 @@ exports.bulkCreateUsers = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params; // or use req.body depending on your routing
+
+    // console.log("e enter", id);
+    // console.log("e enter", req.body);
+
     const updateFields = req.body;
 
     if (!id) {
@@ -394,7 +398,7 @@ exports.updateUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ id });
+    const user = await TestUser.findById(id);
     if (!user) {
       return res.status(404).json({
         success: false,
