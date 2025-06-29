@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import Lottie from "lottie-react";
@@ -13,6 +13,8 @@ import {
   Search,
   Video,
 } from "lucide-react";
+import { Toggle } from "@/components/Toggle";
+import ProfileDrawer from "@/components/Profiler";
 
 // const poppins = Poppins({ subsets: ["latin"], weight: ["400", "700"] });
 // const lobster = Lobster({ weight: ["400"], subsets: ["latin"] });
@@ -20,6 +22,7 @@ import {
 export default function Dashboard() {
   const { user, logout, isLoading, checkAuth } = useAuthStore();
   const router = useRouter();
+  const [notifications, setNotifications] = useState(true);
 
   useEffect(() => {
     checkAuth();
@@ -55,18 +58,25 @@ export default function Dashboard() {
 
   const status: string = "good";
 
+  const mockUser = {
+    name: "Ash Ketchum",
+    email: "ash@example.com",
+    image: "/avatar1.png", // Optional
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 px-4 pb-8 pt-4 bg-[url('/defBack.jpg')] bg-cover bg-center">
       <div className="max-w-sm mx-auto gap-5 flex flex-col">
         {/* <h1 className="text-2xl font-bold mb-4">CRS BitDefender</h1> */}
         <div className="flex items-center gap-3">
-          <Image
+          {/* <Image
             src="/avatar1.png"
             alt="avatar"
             width={30}
             height={30}
             className="rounded-full"
-          />
+          /> */}
+          <ProfileDrawer user={mockUser} onLogout={logout} />
           <h1
             className={`text-[1rem] text-white`}
             style={{ fontFamily: "Poppins" }}
@@ -82,62 +92,122 @@ export default function Dashboard() {
         </div>
 
         <div className="flex justify-between  items-center ">
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center py-3">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full">
-              <Phone color="#87ceeb" strokeWidth="2px" />
-            </div>
-            <span className="text-gray-600">Secure Calls</span>
+          <button className="bg-white w-[30%] rounded-xl flex flex-col items-center justify-center py-3">
+            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
+            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+            <Image
+              src="/phone.png"
+              alt="phone"
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            {/* </div> */}
+            <span className="text-gray-600 text-sm">Secure Calls</span>
           </button>
 
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center py-3">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full">
-              {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
-              <MessagesSquare color="#87ceeb" strokeWidth="2px" />
-            </div>
-            <span className="text-gray-600">E2E Chats</span>
+          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
+            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
+            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+            <Image
+              src="/chat.png"
+              alt="shield"
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            {/* </div> */}
+            <span className="text-gray-600 text-sm">E2E Chats</span>
           </button>
 
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center py-3">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full">
-              <Video color="#87ceeb" strokeWidth="2px" />
-            </div>
-            <span className="text-gray-600">Video Calls</span>
+          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
+            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
+            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+            <Image
+              src="/video.png"
+              alt="video"
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            {/* </div> */}
+            <span className="text-gray-600 text-sm">Video Calls</span>
           </button>
         </div>
 
         <div className="flex justify-between">
           <div className="w-[58%] flex flex-col justify-between">
             <div className="bg-white flex h-[41%] w-full rounded-xl"></div>
-            <div className="bg-white flex h-[41%] w-full rounded-xl"></div>
+            <div className="bg-white flex h-[41%] w-full rounded-xl p-1">
+              <Toggle
+                initialState={notifications}
+                onToggle={setNotifications}
+              />
+            </div>
           </div>
-          <div className="w-[38%] bg-white flex flex-col items-center rounded-xl py-3">
+          {/* <div className="w-[38%] bg-white flex flex-col items-center rounded-xl py-3">
             <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full">
               <Phone color="#87ceeb" strokeWidth="2px" />
             </div>
             <span className="text-gray-600">Secure Calls</span>
-          </div>
+          </div> */}
+
+          <button className="bg-white w-[38%] rounded-xl flex flex-col items-center justify-center py-3">
+            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
+            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+            <Image
+              src="/defend.png"
+              alt="defender"
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            {/* </div> */}
+            <span className="text-gray-600 text-sm">BitDefender</span>
+          </button>
         </div>
 
         <div className="bg-white w-full flex justify-between rounded-xl py-4">
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center py-3">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full">
-              <Phone color="#87ceeb" strokeWidth="2px" />
-            </div>
-            <span className="text-gray-600">Secure Calls</span>
+          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
+            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
+            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+            <Image
+              src="/safe.png"
+              alt="storage"
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            {/* </div> */}
+            <span className="text-gray-600 text-sm">File Storage</span>
           </button>
 
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center py-3">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full">
-              <Phone color="#87ceeb" strokeWidth="2px" />
-            </div>
-            <span className="text-gray-600">Secure Calls</span>
+          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
+            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
+            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+            <Image
+              src="/bubble.png"
+              alt="meeting"
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            {/* </div> */}
+            <span className="text-gray-600 text-sm">Meeting Rooms</span>
           </button>
 
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center py-3">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full">
-              <Phone color="#87ceeb" strokeWidth="2px" />
-            </div>
-            <span className="text-gray-600">Secure Calls</span>
+          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
+            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
+            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+            <Image
+              src="/encrypt.png"
+              alt="meeting"
+              width={60}
+              height={60}
+              className="rounded-full"
+            />
+            {/* </div> */}
+            <span className="text-gray-600 text-sm">Encryptor</span>
           </button>
         </div>
 
