@@ -16,7 +16,7 @@ export default function ProfileDrawer({ user, onLogout }: {
       {/* Profile Icon Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className=" z-50 p-1 bg-white rounded-full shadow"
+        className="p-1 bg-white rounded-full shadow"
       >
         {user.image ? (
           //   <Image src={user.image} alt="Profile" width={32} height={32} className="rounded-full" />
@@ -42,9 +42,9 @@ export default function ProfileDrawer({ user, onLogout }: {
             transition={{ type: "tween" }}
             className="fixed top-0 left-0 z-40 h-full w-64 bg-white shadow-lg flex flex-col"
           >
-            <div className="p-4 border-b">
+            <div className="p-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                {/* {user.image ? (
+                {user.image ? (
                   <Image
                     src={user.image}
                     alt="User"
@@ -54,8 +54,8 @@ export default function ProfileDrawer({ user, onLogout }: {
                   />
                 ) : (
                   <User size={40} />
-                )} */}
-                <div className="w-[40px] h-[40px] bg-transparent " />
+                )}
+                {/* <div className="w-[40px] h-[40px] bg-transparent " /> */}
                 <div>
                   <p className="font-semibold">{user.name}</p>
                   <p className="text-sm text-gray-500">{user.email}</p>
@@ -64,12 +64,12 @@ export default function ProfileDrawer({ user, onLogout }: {
             </div>
 
             {/* Add more profile-related content here */}
-            <div className="flex-1 p-4 text-sm text-gray-600">
+            {/* <div className="flex-1 p-4 text-sm text-gray-600">
               <p>This is your profile area.</p>
-            </div>
+            </div> */}
 
             {/* Logout at bottom */}
-            <div className="p-4 border-t mt-auto">
+            <div className="p-4 border-t border-gray-100 mt-auto">
               <button
                 onClick={() => {
                   onLogout();

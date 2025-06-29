@@ -187,7 +187,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
     return (
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          type="email"
+          type="text"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

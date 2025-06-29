@@ -15,9 +15,37 @@ import {
 } from "lucide-react";
 import { Toggle } from "@/components/Toggle";
 import ProfileDrawer from "@/components/Profiler";
+import { Lock } from "lucide-react";
 
-// const poppins = Poppins({ subsets: ["latin"], weight: ["400", "700"] });
-// const lobster = Lobster({ weight: ["400"], subsets: ["latin"] });
+function FeatureTile({
+  title,
+  isProFeature,
+}: {
+  title: string;
+  isProFeature: boolean;
+}) {
+  return (
+    <div
+      className={`relative p-4 border rounded-lg shadow-md ${
+        isProFeature ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg"
+      } bg-white transition duration-300`}
+    >
+      <h3 className="font-semibold text-lg">{title}</h3>
+
+      {isProFeature && (
+        <>
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10 rounded-lg" />
+
+          {/* Tag */}
+          <span className="absolute top-2 right-2 z-20 bg-yellow-400 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <Lock size={12} /> Pro
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { user, logout, isLoading, checkAuth } = useAuthStore();
@@ -92,52 +120,129 @@ export default function Dashboard() {
         </div>
 
         <div className="flex justify-between  items-center ">
-          <button className="bg-white w-[30%] rounded-xl flex flex-col items-center justify-center py-3">
-            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
-            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+          <button
+            className={`relative overflow-hidden bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3 transition 
+        ${true ? "opacity-60 cursor-not-allowed" : "hover:shadow-md"}`}
+            disabled={true}
+          >
+            {true && (
+              <>
+                {/* Blur/Dim Overlay */}
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10" />
+
+                {/* Lock Tag */}
+                <div className="absolute top-2 right-2 z-20 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                  <Lock size={12} /> Suite
+                </div>
+              </>
+            )}
+
             <Image
               src="/phone.png"
               alt="phone"
               width={60}
               height={60}
-              className="rounded-full"
+              className="rounded-full z-20"
             />
-            {/* </div> */}
-            <span className="text-gray-600 text-sm">Secure Calls</span>
+
+            <span className="text-gray-600 text-sm z-20">Secure Call</span>
+
+            {/* Version Badge */}
+            <div className="rotate-45 translate-x-9 -translate-y-7 bg-gray-500 w-full absolute z-0">
+              <span className="text-white">Suite</span>
+            </div>
           </button>
 
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
-            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
-            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+          <button
+            className={`relative overflow-hidden bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3 transition 
+        ${true ? "opacity-60 cursor-not-allowed" : "hover:shadow-md"}`}
+            disabled={true}
+          >
+            {true && (
+              <>
+                {/* Blur/Dim Overlay */}
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10" />
+
+                {/* Lock Tag */}
+                <div className="absolute top-2 right-2 z-20 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                  <Lock size={12} /> V5
+                </div>
+              </>
+            )}
+
             <Image
               src="/chat.png"
               alt="shield"
               width={60}
               height={60}
-              className="rounded-full"
+              className="rounded-full z-20"
             />
-            {/* </div> */}
-            <span className="text-gray-600 text-sm">E2E Chats</span>
+
+            <span className="text-gray-600 text-sm z-20">E2E Chats</span>
+
+            {/* Version Badge */}
+            <div className="rotate-45 translate-x-9 -translate-y-7 bg-gray-500 w-full absolute z-0">
+              <span className="text-white">v5</span>
+            </div>
           </button>
 
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
-            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
-            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+          {/* <FeatureTile title="Secure" isProFeature={true} /> */}
+
+          <button
+            className={`relative overflow-hidden bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3 transition 
+        ${true ? "opacity-60 cursor-not-allowed" : "hover:shadow-md"}`}
+            disabled={true}
+          >
+            {true && (
+              <>
+                {/* Blur/Dim Overlay */}
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10" />
+
+                {/* Lock Tag */}
+                <div className="absolute top-2 right-2 z-20 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                  <Lock size={12} /> Suite
+                </div>
+              </>
+            )}
+
             <Image
               src="/video.png"
               alt="video"
               width={60}
               height={60}
-              className="rounded-full"
+              className="rounded-full z-20"
             />
-            {/* </div> */}
-            <span className="text-gray-600 text-sm">Video Calls</span>
+
+            <span className="text-gray-600 text-sm z-20">Video Call</span>
+
+            {/* Version Badge */}
+            <div className="rotate-45 translate-x-9 -translate-y-7 bg-gray-500 w-full absolute z-0">
+              <span className="text-white">Suite</span>
+            </div>
           </button>
         </div>
 
         <div className="flex justify-between">
           <div className="w-[58%] flex flex-col justify-between">
-            <div className="bg-white flex h-[41%] w-full rounded-xl"></div>
+            <div className="bg-white flex items-center px-4 gap-2 h-[41%] w-full rounded-xl shadow-md">
+              {/* Icon or Emoji (optional) */}
+              {/* <div className="bg-red-100 text-red-600 p-2 rounded-full">💳</div> */}
+
+              {/* <span className="text-sm text-gray-500">Bill Due</span> */}
+
+              <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full w-max whitespace-nowrap">
+                Due Soon
+              </span>
+
+              {/* Bill Info */}
+              {/* <div className="flex flex-col justify-center"> */}
+                <span className="text-lg whitespace-nowrap font-semibold text-gray-800">
+                  July 15, 2025
+                </span>
+                {/* Optional Status */}
+              {/* </div> */}
+            </div>
+
             <div className="bg-white flex h-[41%] w-full rounded-xl p-1">
               <Toggle
                 initialState={notifications}
@@ -145,16 +250,8 @@ export default function Dashboard() {
               />
             </div>
           </div>
-          {/* <div className="w-[38%] bg-white flex flex-col items-center rounded-xl py-3">
-            <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full">
-              <Phone color="#87ceeb" strokeWidth="2px" />
-            </div>
-            <span className="text-gray-600">Secure Calls</span>
-          </div> */}
 
           <button className="bg-white w-[38%] rounded-xl flex flex-col items-center justify-center py-3">
-            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
-            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
             <Image
               src="/defend.png"
               alt="defender"
@@ -216,7 +313,7 @@ export default function Dashboard() {
             <span className="text-xl font-semibold">Device Health</span>
 
             <Image
-              src="/healthGood.png"
+              src="/goodHealth.png"
               alt="health-icon"
               width={80}
               height={80}
