@@ -10,7 +10,24 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  // Legacy ESLint configs
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+
+  // Your custom rules
+  {
+    files: ["**/*.{js,ts,jsx,tsx}"],
+    rules: {
+      // Example custom rules:
+      // semi: ["error", "always"],
+      // quotes: ["error", "single"],
+      "no-unused-vars": ["off"],
+      // eqeqeq: ["error", "always"],
+      "no-console": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "react/no-unescaped-entities": "off"
+    },
+  },
 ];
 
 export default eslintConfig;
