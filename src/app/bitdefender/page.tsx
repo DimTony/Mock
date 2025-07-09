@@ -113,15 +113,6 @@ const BitDefender = () => {
 
       <SnapCarousel />
 
-      {carouselItems.map((project) => (
-        <ProgressCard
-          key={project.id}
-          title={project.title}
-          description={project.description}
-          startDate={project.startDate}
-          endDate={project.endDate}
-        />
-      ))}
 
       <div></div>
     </div>
