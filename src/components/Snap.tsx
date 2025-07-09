@@ -340,7 +340,7 @@ const SnapCarousel: React.FC = () => {
           return (
             <div
               key={item.id}
-              className="min-w-90 flex-shrink-0 snap-start rounded-lg shadow-lg bg-white border border-gray-200 flex flex-col p-6 transition-transform hover:scale-105 cursor-pointer"
+              className="min-w-90 flex-shrink-0 snap-start rounded-xl shadow-lg bg-white border border-gray-200 flex flex-col p-6 transition-transform hover:scale-105 cursor-pointer"
             >
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
@@ -408,23 +408,23 @@ const SnapCarousel: React.FC = () => {
                         ? `${daysRemaining} days left`
                         : `${Math.abs(daysRemaining)} days overdue`}
                     </span>
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-xs text-gray-700">
                       {/* {Math.round(progress)}% */}
-                      {formatDate(
+                    Due by:  {formatDate(
                         getEndDate(item.startDate, item.duration).toISOString()
                       )}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-600 text-center">
+                {/* <p className="text-sm text-gray-600 text-center">
                   {item.description}
-                </p>
+                </p> */}
               </div>
 
               {/* Action Button */}
-              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
-                {progress >= 100 ? "Renew Subscription" : "Manage Subscription"}
+              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 transition-colors text-sm font-medium">
+                {progress >= 100 ? "Renew Subscription" : "Pay Now"}
               </button>
             </div>
           );
