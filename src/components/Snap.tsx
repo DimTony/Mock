@@ -400,9 +400,9 @@ const SnapCarousel: React.FC = () => {
 
                   <div className="flex justify-between items-center mb-2">
                     <span
-                      className={
-                        daysRemaining > 0 ? "text-gray-600" : "text-red-600"
-                      }
+                      className={`text-xs ${
+                        daysRemaining > 0 ? "text-gray-600 " : "text-red-600"
+                      }`}
                     >
                       {daysRemaining > 0
                         ? `${daysRemaining} days left`
@@ -410,7 +410,9 @@ const SnapCarousel: React.FC = () => {
                     </span>
                     <span className="text-sm font-medium text-gray-700">
                       {/* {Math.round(progress)}% */}
-                      {formatDate(getEndDate(item.startDate, item.duration).toISOString())}
+                      {formatDate(
+                        getEndDate(item.startDate, item.duration).toISOString()
+                      )}
                     </span>
                   </div>
                 </div>
