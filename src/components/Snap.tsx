@@ -348,7 +348,7 @@ const SnapCarousel: React.FC = () => {
                   <h3 className="text-xl font-bold text-gray-900 mb-1">
                     {item.title}
                   </h3>
-                  <p className="text-sm text-gray-600">IUC: {item.iuc}</p>
+                  <p className="text-sm text-gray-600">IMEI: {item.iuc}</p>
                 </div>
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
