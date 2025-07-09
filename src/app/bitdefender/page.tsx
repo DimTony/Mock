@@ -1,7 +1,7 @@
 "use client";
 
 import ProfileDrawer from "@/components/Profiler";
-import SnapCarousel from "@/components/Snap";
+import SnapCarousel, { ProgressCard } from "@/components/Snap";
 import { useAuthStore } from "@/store/authStore";
 import React from "react";
 
@@ -13,6 +13,86 @@ const BitDefender = () => {
     email: "ash@example.com",
     image: "/avatar1.png", // Optional
   };
+
+  const carouselItems = [
+    {
+      id: 1,
+      title: "Yanga",
+      iuc: 7021955561,
+      status: "Active",
+      startDate: "2024-01-15",
+      endDate: "2024-03-30",
+      description: "First carousel item Description",
+      content: "First carousel item",
+      color: "bg-blue-500",
+    },
+    {
+      id: 2,
+      title: "Card 2",
+      iuc: 7021955561,
+      status: "Active",
+      startDate: "2024-01-15",
+      endDate: "2024-03-30",
+      description: "First carousel item Description",
+      content: "Second carousel item",
+      color: "bg-green-500",
+    },
+    {
+      id: 3,
+      title: "Card 3",
+      iuc: 7021955561,
+      status: "Active",
+      startDate: "2024-01-15",
+      endDate: "2024-03-30",
+      description: "First carousel item Description",
+      content: "Third carousel item",
+      color: "bg-purple-500",
+    },
+    {
+      id: 4,
+      title: "Card 4",
+      iuc: 7021955561,
+      status: "Active",
+      startDate: "2024-01-15",
+      endDate: "2024-03-30",
+      description: "First carousel item Description",
+      content: "Fourth carousel item",
+      color: "bg-red-500",
+    },
+    {
+      id: 5,
+      title: "Card 5",
+      iuc: 7021955561,
+      status: "Active",
+      startDate: "2024-01-15",
+      endDate: "2024-03-30",
+      description: "First carousel item Description",
+      content: "Fifth carousel item",
+      color: "bg-yellow-500",
+    },
+    {
+      id: 6,
+      title: "Card 6",
+      iuc: 7021955561,
+      status: "Active",
+      startDate: "2024-01-15",
+      endDate: "2024-03-30",
+      description: "First carousel item Description",
+      content: "Sixth carousel item",
+      color: "bg-pink-500",
+    },
+    {
+      id: 7,
+      title: "Card 7",
+      iuc: 7021955561,
+      status: "Active",
+      startDate: "2024-01-15",
+      endDate: "2024-03-30",
+      description: "First carousel item Description",
+      content: "Seventh carousel item",
+      color: "bg-indigo-500",
+    },
+  ];
 
   return (
     <div
@@ -32,6 +112,16 @@ const BitDefender = () => {
       </div>
 
       <SnapCarousel />
+
+      {carouselItems.map((project) => (
+        <ProgressCard
+          key={project.id}
+          title={project.title}
+          description={project.description}
+          startDate={project.startDate}
+          endDate={project.endDate}
+        />
+      ))}
 
       <div></div>
     </div>
