@@ -48,7 +48,7 @@ const SnapCarousel = () => {
   ];
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
+    <div className="w-full max-w-6xl mx-auto py-4">
     
       
       <div
@@ -63,7 +63,7 @@ const SnapCarousel = () => {
             key={item.id}
             className={`
               ${item.color} 
-              min-w-80 h-64 
+              min-w-90 h-64 
               flex-shrink-0 
               snap-start 
               rounded-lg 
