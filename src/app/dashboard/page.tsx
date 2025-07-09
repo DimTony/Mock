@@ -16,6 +16,7 @@ import {
 import { Toggle } from "@/components/Toggle";
 import ProfileDrawer from "@/components/Profiler";
 import { Lock } from "lucide-react";
+import Link from "next/link";
 
 function FeatureTile({
   title,
@@ -236,10 +237,10 @@ export default function Dashboard() {
 
               {/* Bill Info */}
               {/* <div className="flex flex-col justify-center"> */}
-                <span className="text-lg whitespace-nowrap font-semibold text-gray-800">
-                  July 15, 2025
-                </span>
-                {/* Optional Status */}
+              <span className="text-lg whitespace-nowrap font-semibold text-gray-800">
+                July 15, 2025
+              </span>
+              {/* Optional Status */}
               {/* </div> */}
             </div>
 
@@ -251,61 +252,115 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <button className="bg-white w-[38%] rounded-xl flex flex-col items-center justify-center py-3">
-            <Image
-              src="/defend.png"
-              alt="defender"
-              width={60}
-              height={60}
-              className="rounded-full"
-            />
-            {/* </div> */}
-            <span className="text-gray-600 text-sm">BitDefender</span>
-          </button>
+          <Link
+            href="/bitdefender"
+            className="bg-white w-[38%] rounded-xl flex flex-col items-center justify-center py-3"
+            //     className={`relative overflow-hidden flex flex-col w-[30%] items-center justify-center py-3 transition
+            // ${false ? "opacity-60 cursor-not-allowed" : "hover:shadow-md"}`}
+            // disabled={false}
+          >
+            <button>
+              {/* <button className="bg-white w-[38%] rounded-xl flex flex-col items-center justify-center py-3"> */}
+              <Image
+                src="/defend.png"
+                alt="defender"
+                width={60}
+                height={60}
+                className="rounded-full"
+              />
+              {/* </div> */}
+              <span className="text-gray-600 text-sm">BitDefender</span>
+            </button>
+          </Link>
         </div>
 
         <div className="bg-white w-full flex justify-between rounded-xl py-4">
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
-            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
-            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+          <button
+            className={`relative overflow-hidden flex flex-col w-[30%] items-center justify-center py-3 transition 
+        ${true ? "opacity-60 cursor-not-allowed" : "hover:shadow-md"}`}
+            disabled={true}
+          >
+            {true && (
+              <>
+                {/* Blur/Dim Overlay */}
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10" />
+
+                {/* Lock Tag */}
+                <div className="absolute top-2 right-2 z-20 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                  <Lock size={12} /> Suite
+                </div>
+              </>
+            )}
+
             <Image
               src="/safe.png"
               alt="storage"
               width={60}
               height={60}
-              className="rounded-full"
+              className="rounded-full z-20"
             />
-            {/* </div> */}
-            <span className="text-gray-600 text-sm">File Storage</span>
+
+            <span className="text-gray-600 text-sm z-20">File Storage</span>
           </button>
 
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
-            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
-            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
+          <button
+            className={`relative overflow-hidden flex flex-col w-[30%] items-center justify-center py-3 transition 
+        ${true ? "opacity-60 cursor-not-allowed" : "hover:shadow-md"}`}
+            disabled={true}
+          >
+            {true && (
+              <>
+                {/* Blur/Dim Overlay */}
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10" />
+
+                {/* Lock Tag */}
+                <div className="absolute top-2 right-2 z-20 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                  <Lock size={12} /> Suite
+                </div>
+              </>
+            )}
+
             <Image
               src="/bubble.png"
-              alt="meeting"
+              alt="storage"
               width={60}
               height={60}
-              className="rounded-full"
+              className="rounded-full z-20"
             />
-            {/* </div> */}
-            <span className="text-gray-600 text-sm">Meeting Rooms</span>
+
+            <span className="text-gray-600 text-sm z-20">Meeting Rooms</span>
           </button>
 
-          <button className="bg-white rounded-xl flex flex-col w-[30%] items-center justify-center py-3">
-            {/* <div className="flex items-center justify-center w-[3rem] h-[3rem] border-2 mb-2 border-[#87ceeb] rounded-full"> */}
-            {/* <Phone color="#87ceeb" strokeWidth="2px" /> */}
-            <Image
-              src="/encrypt.png"
-              alt="meeting"
-              width={60}
-              height={60}
-              className="rounded-full"
-            />
-            {/* </div> */}
-            <span className="text-gray-600 text-sm">Encryptor</span>
-          </button>
+          <Link
+            href="/encryptor"
+            className={`relative overflow-hidden flex flex-col w-[30%] items-center justify-center py-3 transition 
+        ${false ? "opacity-60 cursor-not-allowed" : "hover:shadow-md"}`}
+            // disabled={false}
+          >
+            <button>
+              {false && (
+                <>
+                  {/* Blur/Dim Overlay */}
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10" />
+
+                  {/* Lock Tag */}
+                  <div className="absolute top-2 right-2 z-20 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                    <Lock size={12} /> Suite
+                  </div>
+                </>
+              )}
+
+              <Image
+                src="/encrypt.png"
+                alt="storage"
+                width={60}
+                height={60}
+                className="rounded-full z-20"
+              />
+
+              <span className="text-gray-600 text-sm z-20">Encryptor</span>
+            </button>
+          </Link>
         </div>
 
         <div className="bg-white w-full min-h-[15rem] flex flex-col justify-between rounded-xl mb-4 py-4 px-4">
