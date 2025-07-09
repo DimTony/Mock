@@ -3,6 +3,8 @@
 import ProfileDrawer from "@/components/Profiler";
 import SnapCarousel, { ProgressCard } from "@/components/Snap";
 import { useAuthStore } from "@/store/authStore";
+import { CirclePlus } from "lucide-react";
+import Image from "next/image";
 import React from "react";
 
 const BitDefender = () => {
@@ -113,8 +115,15 @@ const BitDefender = () => {
 
       <SnapCarousel />
 
-
-      <div></div>
+      <button className="absolute bottom-20 right-5">
+        <Image
+          src="/plus-circle.svg"
+          alt="add"
+          width={60}
+          height={60}
+          className="rounded-full z-20"
+        />
+      </button>
     </div>
   );
 };
