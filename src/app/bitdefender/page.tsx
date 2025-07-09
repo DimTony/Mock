@@ -115,7 +115,7 @@ const BitDefender = () => {
 
       <SnapCarousel />
 
-      <button className="absolute bottom-20 right-5">
+      <button className="absolute bottom-10 right-5">
         <Image
           src="/plus-circle.svg"
           alt="add"
