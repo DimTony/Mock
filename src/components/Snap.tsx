@@ -327,6 +327,16 @@ const SnapCarousel: React.FC = () => {
           const daysUsed = getDaysUsed(item.startDate);
           const daysRemaining = getDaysRemaining(item.startDate, item.duration);
 
+          const getEndDate = (
+            startDate: string,
+            durationDays: number
+          ): Date => {
+            const start = new Date(startDate);
+            const end = new Date(start);
+            end.setDate(start.getDate() + durationDays);
+            return end;
+          };
+
           return (
             <div
               key={item.id}
@@ -399,7 +409,8 @@ const SnapCarousel: React.FC = () => {
                         : `${Math.abs(daysRemaining)} days overdue`}
                     </span>
                     <span className="text-sm font-medium text-gray-700">
-                      {Math.round(progress)}%
+                      {/* {Math.round(progress)}% */}
+                      {formatDate(getEndDate(item.startDate, item.duration).toISOString())}
                     </span>
                   </div>
                 </div>
