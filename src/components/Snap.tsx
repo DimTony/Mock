@@ -330,7 +330,7 @@ const SnapCarousel: React.FC = () => {
           return (
             <div
               key={item.id}
-              className="min-w-90 h-80 flex-shrink-0 snap-start rounded-lg shadow-lg bg-white border border-gray-200 flex flex-col p-6 transition-transform hover:scale-105 cursor-pointer"
+              className="min-w-90 flex-shrink-0 snap-start rounded-lg shadow-lg bg-white border border-gray-200 flex flex-col p-6 transition-transform hover:scale-105 cursor-pointer"
             >
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
@@ -351,14 +351,14 @@ const SnapCarousel: React.FC = () => {
 
               {/* Subscription Info */}
               <div className="mb-4 flex-grow">
-                <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
+                {/* <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
                   <span>Started: {formatDate(item.startDate)}</span>
                   <span className="bg-gray-100 px-2 py-1 rounded text-xs">
                     {item.duration} days
                   </span>
-                </div>
+                </div> */}
 
-                <div className="flex justify-between items-center mb-3 text-sm text-gray-600">
+                {/* <div className="flex justify-between items-center mb-3 text-sm text-gray-600">
                   <span>
                     Usage: {daysUsed} / {item.duration} days
                   </span>
@@ -371,19 +371,10 @@ const SnapCarousel: React.FC = () => {
                       ? `${daysRemaining} days left`
                       : `${Math.abs(daysRemaining)} days overdue`}
                   </span>
-                </div>
+                </div> */}
 
                 {/* Progress Section */}
                 <div className="mb-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700">
-                      Subscription Usage
-                    </span>
-                    <span className="text-sm font-medium text-gray-700">
-                      {Math.round(progress)}%
-                    </span>
-                  </div>
-
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                     <div
@@ -395,6 +386,21 @@ const SnapCarousel: React.FC = () => {
                         width: `${progress}%`,
                       }}
                     />
+                  </div>
+
+                  <div className="flex justify-between items-center mb-2">
+                    <span
+                      className={
+                        daysRemaining > 0 ? "text-gray-600" : "text-red-600"
+                      }
+                    >
+                      {daysRemaining > 0
+                        ? `${daysRemaining} days left`
+                        : `${Math.abs(daysRemaining)} days overdue`}
+                    </span>
+                    <span className="text-sm font-medium text-gray-700">
+                      {Math.round(progress)}%
+                    </span>
                   </div>
                 </div>
 
@@ -412,25 +418,6 @@ const SnapCarousel: React.FC = () => {
         })}
       </div>
 
-      {/* Optional: Scroll indicators */}
-      <div className="flex justify-center mt-4 space-x-2">
-        {carouselItems.map((_, index) => (
-          <div
-            key={index}
-            className="w-2 h-2 rounded-full bg-gray-300 hover:bg-gray-500 cursor-pointer transition-colors"
-            onClick={() => {
-              const carousel = document.querySelector(".snap-x");
-              const cardWidth = 320 + 16; // card width + gap
-              if (carousel) {
-                carousel.scrollTo({
-                  left: index * cardWidth,
-                  behavior: "smooth",
-                });
-              }
-            }}
-          />
-        ))}
-      </div>
     </div>
   );
 };
