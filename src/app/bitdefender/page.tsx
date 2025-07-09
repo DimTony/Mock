@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
 import ProfileDrawer from "@/components/Profiler";
+import SnapCarousel from "@/components/Snap";
 import { useAuthStore } from "@/store/authStore";
 import React from "react";
 
@@ -21,13 +22,6 @@ const BitDefender = () => {
       <div className="back-image" />
 
       <div className="flex items-center gap-3">
-        {/* <Image
-            src="/avatar1.png"
-            alt="avatar"
-            width={30}
-            height={30}
-            className="rounded-full"
-          /> */}
         <ProfileDrawer user={mockUser} onLogout={logout} />
         <span
           className={`text-[1rem] text-[#003883]`}
@@ -36,6 +30,9 @@ const BitDefender = () => {
           BitDefender
         </span>
       </div>
+
+      <SnapCarousel />
+
       <div></div>
     </div>
   );
