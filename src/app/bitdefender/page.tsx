@@ -100,7 +100,7 @@ const BitDefender = () => {
   const isFeatureLocked = true; // You can make this dynamic based on user subscription
 
   return (
-    <div className="h-screen overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
+    <div className="h-[100dvh] overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
       <div className="back-image" />
 
       {/* Header - Fixed height */}
@@ -172,16 +172,6 @@ const BitDefender = () => {
         </div>
       </div>
 
-      {/* Floating button - Absolute positioned */}
-      <button className="absolute bottom-10 right-5 z-30">
-        <Image
-          src="/plus-circle.svg"
-          alt="add"
-          width={60}
-          height={60}
-          className="rounded-full"
-        />
-      </button>
     </div>
   );
 };
