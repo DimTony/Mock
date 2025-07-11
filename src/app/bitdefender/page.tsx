@@ -3,7 +3,7 @@
 import ProfileDrawer from "@/components/Profiler";
 import SnapCarousel, { ProgressCard } from "@/components/Snap";
 import { useAuthStore } from "@/store/authStore";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, Info, UserCog } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
@@ -114,6 +114,37 @@ const BitDefender = () => {
       {/* Carousel - Takes remaining space */}
       <div className="flex-1 overflow-hidden">
         <SnapCarousel />
+
+        <div className="flex flex-col gap-4 mt-6">
+          <span className="text-lg font-semibold text-gray-800">
+            Quick Actions
+          </span>
+          <div className="flex gap-4">
+            <button className="bg-white rounded-xl flex flex-col items-center gap-3 p-6 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 flex-1 border border-gray-100">
+              <div className="p-3 bg-blue-50 rounded-full">
+                <Info className="w-6 h-6 text-blue-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 text-center">
+                Fix Errors
+              </span>
+            </button>
+
+            <button className="bg-white rounded-xl flex flex-col items-center gap-3 p-6 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 flex-1 border border-gray-100">
+              <div className="p-3 bg-green-50 rounded-full">
+                <UserCog className="w-6 h-6 text-green-600" />
+              </div>
+              <span className="text-sm font-medium text-gray-700 text-center">
+                Manage Encryptions
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4 mt-6">
+          <span className="text-lg font-semibold text-gray-800">
+            Recent
+          </span>
+        </div>
       </div>
 
       {/* Floating button - Absolute positioned */}
