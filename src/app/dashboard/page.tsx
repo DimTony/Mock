@@ -54,9 +54,9 @@ export default function Dashboard() {
   const router = useRouter();
   const [notifications, setNotifications] = useState(true);
 
-  useEffect(() => {
-    console.log("UUU", user);
-  }, [user]);
+  // useEffect(() => {
+  //   console.log("UUU", user);
+  // }, [user]);
 
   useEffect(() => {
     checkAuth();

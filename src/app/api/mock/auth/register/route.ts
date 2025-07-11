@@ -19,16 +19,16 @@ export async function POST(request: NextRequest) {
       if (file) files.push(file);
     }
 
-    console.log("Registration data:", {
-      name,
-      email,
-      password,
-      phone,
-      deviceName,
-      deviceIMEI,
-      subscriptionPlan,
-      filesCount: files.length,
-    });
+    // console.log("Registration data:", {
+    //   name,
+    //   email,
+    //   password,
+    //   phone,
+    //   deviceName,
+    //   deviceIMEI,
+    //   subscriptionPlan,
+    //   filesCount: files.length,
+    // });
 
     // Mock registration success
     return NextResponse.json({

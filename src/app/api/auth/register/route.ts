@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     const result = await response.json();
 
-    console.log("REG API response", result);
+    // console.log("REG API response", result);
 
     if (!response.ok) {
       return NextResponse.json(

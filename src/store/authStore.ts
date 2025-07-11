@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>()(
 
           const result = await res.json();
 
-          console.log("STORE LOGIN Result:", result);
+          // console.log("STORE LOGIN Result:", result);
 
           if (!result.success) {
             // Check if it's an email verification issue
@@ -52,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
 
           const userResult = await response.json();
 
-          console.log("STORE USER Result:", userResult);
+          // console.log("STORE USER Result:", userResult);
 
           if (!userResult.success) throw new Error("User Profile fetch failed");
 
@@ -84,7 +84,7 @@ export const useAuthStore = create<AuthState>()(
 
           const result = await res.json();
 
-          console.log("STORE REG Result:", result);
+          // console.log("STORE REG Result:", result);
 
           if (!result.success) {
             throw new Error(result?.error || "Registration failed");
@@ -116,7 +116,7 @@ export const useAuthStore = create<AuthState>()(
 
           const userResult = await response.json();
 
-          console.log("STORE USER Result:", userResult);
+          // console.log("STORE USER Result:", userResult);
 
           if (!userResult.success) throw new Error("User Profile fetch failed");
 
@@ -131,18 +131,50 @@ export const useAuthStore = create<AuthState>()(
         set({ user: null, token: null });
       },
 
-      checkAuth: () => {
+      checkAuth: async () => {
         const { token } = get();
+
+        // If no token, clear user and stop loading
         if (!token) {
-          set({ user: null });
+          set({ user: null, isLoading: false });
+          return;
         }
-        set({ isLoading: false }); // Always set loading to false after check
+
+        set({ isLoading: true });
+
+        try {
+          // Validate token and fetch user data
+          const response = await fetch("/api/user", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const userResult = await response.json();
+
+          // console.log("STORE AUTH CHECK Result:", userResult);
+
+          if (!userResult.success) {
+            // Token is invalid/expired, clear auth state
+            console.log("Token invalid, clearing auth state");
+            set({ user: null, token: null, isLoading: false });
+            return;
+          }
+
+          // Token is valid, update user data
+          set({ user: userResult?.data, isLoading: false });
+        } catch (error) {
+          // Network error or other issues, clear auth state
+          console.error("Auth check failed:", error);
+          set({ user: null, token: null, isLoading: false });
+        }
       },
     }),
     {
       name: "auth-storage",
       onRehydrateStorage: () => (state) => {
-        // Called after rehydration, ensure we check auth
+        // Called after rehydration, check auth and validate token
         if (state) {
           state.checkAuth();
         }
