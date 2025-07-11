@@ -20,16 +20,25 @@ export const useAuthStore = create<AuthState>()(
 
           const result = await res.json();
 
-          // console.log("STORE USER Result:", result);
+          console.log("STORE LOGIN Result:", result);
 
           if (!result.success) {
-            throw new Error(result?.error || "Login failed");
+            // Check if it's an email verification issue
+            if (result.data?.requiresVerification) {
+              const error = new Error(
+                result.error || "Email verification required"
+              );
+              (error as any).code = "EMAIL_VERIFICATION_REQUIRED";
+              (error as any).email = result.data.email;
+              throw error;
+            }
+
+            // For other errors, throw with the actual message
+            throw new Error(result.error || "Login failed");
           }
 
           set({
-            // user: result?.data,
             token: result?.data?.accessToken,
-            // isLoading: false,
           });
 
           const token = useAuthStore.getState().token;
@@ -37,17 +46,17 @@ export const useAuthStore = create<AuthState>()(
           const response = await fetch("/api/user", {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json", // only if you're sending JSON
+              "Content-Type": "application/json",
             },
           });
 
           const userResult = await response.json();
 
-          // console.log("STORE USER Result:", userResult);
+          console.log("STORE USER Result:", userResult);
 
           if (!userResult.success) throw new Error("User Profile fetch failed");
 
-          set({ user: userResult?.data?.user, isLoading: false });
+          set({ user: userResult?.data, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -73,13 +82,23 @@ export const useAuthStore = create<AuthState>()(
             body: formData,
           });
 
-          // console.log('REg response', await res.json())
           const result = await res.json();
 
-          // console.log("STORE REG Result:", result);
+          console.log("STORE REG Result:", result);
 
           if (!result.success) {
             throw new Error(result?.error || "Registration failed");
+          }
+
+          // Check if registration was successful but requires email verification
+          if (result.success && result.data?.requiresVerification) {
+            const error = new Error(
+              result.message ||
+                "Registration successful! Please verify your email."
+            );
+            (error as any).code = "REGISTRATION_SUCCESS_VERIFICATION_REQUIRED";
+            (error as any).email = result.data.email;
+            throw error;
           }
 
           set({
@@ -91,17 +110,17 @@ export const useAuthStore = create<AuthState>()(
           const response = await fetch("/api/user", {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json", // only if you're sending JSON
+              "Content-Type": "application/json",
             },
           });
 
           const userResult = await response.json();
 
-          // console.log("STORE USER Result:", userResult);
+          console.log("STORE USER Result:", userResult);
 
           if (!userResult.success) throw new Error("User Profile fetch failed");
 
-          set({ user: userResult?.data?.user, isLoading: false });
+          set({ user: userResult?.data, isLoading: false });
         } catch (error) {
           set({ isLoading: false });
           throw error;

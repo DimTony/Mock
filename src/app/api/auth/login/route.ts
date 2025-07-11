@@ -13,18 +13,29 @@ export async function POST(request: NextRequest) {
 
     const result = await response.json();
 
-    console.log("API LOGIN Result:", result);
+    // console.log("API LOGIN Result:", result);
 
-    if (!response.ok) {
-
-      throw new Error(result?.message.toString() || "Authentication failed");
+    if (!result.success) {
+      // Return the actual error message from the backend
+      return NextResponse.json(
+        {
+          success: false,
+          error: result?.message || "Authentication failed",
+          data: result?.data, // Include any additional data (like requiresVerification)
+        },
+        { status: response.status }
+      );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    // Don't call response.json() again - use the result we already have
+    return NextResponse.json(result);
   } catch (error: any) {
+    console.error("Login API Error:", error);
     return NextResponse.json(
-      { error: "Authentication failed" },
+      {
+        success: false,
+        error: "Authentication failed",
+      },
       { status: 401 }
     );
   }

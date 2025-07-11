@@ -16,8 +16,6 @@ const subscriptionPlans = [
     features: [
       "Basic mobile encryption",
       "30 day duration",
-      // "5GB Storage",
-      // "Basic Support",
     ],
   },
   {
@@ -27,9 +25,6 @@ const subscriptionPlans = [
     features: [
       "Premium mobile encryption",
       "60 day duration",
-      // "50GB Storage",
-      // "Priority Support",
-      // "Advanced Features",
     ],
   },
   {
@@ -39,9 +34,6 @@ const subscriptionPlans = [
     features: [
       "Mobile Only",
       "90 day duration",
-      // "Unlimited Storage",
-      // "24/7 Support",
-      // "Custom Integration",
     ],
   },
   {
@@ -51,9 +43,6 @@ const subscriptionPlans = [
     features: [
       "v5 Mobile Only",
       "60 day duration",
-      // "Unlimited Storage",
-      // "24/7 Support",
-      // "Custom Integration",
     ],
   },
   {
@@ -63,9 +52,6 @@ const subscriptionPlans = [
     features: [
       "v4 Full Suite",
       "60 day duration",
-      // "Unlimited Storage",
-      // "24/7 Support",
-      // "Custom Integration",
     ],
   },
   {
@@ -75,9 +61,6 @@ const subscriptionPlans = [
     features: [
       "v5 Full Suite",
       "90 day duration",
-      // "Unlimited Storage",
-      // "24/7 Support",
-      // "Custom Integration",
     ],
   },
 ];
@@ -86,6 +69,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailVerificationRequired, setEmailVerificationRequired] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [showRegistrationSuccess, setShowRegistrationSuccess] = useState(false);
+  const [registrationSuccessData, setRegistrationSuccessData] = useState<{
+    email: string;
+    message: string;
+  } | null>(null);
 
   // Register form fields
   const [name, setName] = useState("");
@@ -142,13 +132,17 @@ export default function AuthForm({ mode }: AuthFormProps) {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Removed resend verification function - user should just check their inbox
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setEmailVerificationRequired(false);
 
     try {
       if (mode === "login") {
         await login(email, password);
+        router.push("/dashboard");
       } else {
         // Validate register form
         if (password !== confirmPassword) {
@@ -170,17 +164,31 @@ export default function AuthForm({ mode }: AuthFormProps) {
           phoneNumber: phone,
           plan: selectedPlan,
           files,
-          // confirmPassword,
         };
 
         await register(registerData);
+        router.push("/dashboard");
       }
-      router.push("/dashboard");
-    } catch (err) {
-      // console.log("DDD", err);
-      setError(
-        mode === "login" ? "Invalid credentials" : "Registration failed"
-      );
+    } catch (err: any) {
+      console.log("Auth Error:", err);
+      
+      // Handle email verification case for login
+      if (mode === "login" && err.code === "EMAIL_VERIFICATION_REQUIRED") {
+        setEmailVerificationRequired(true);
+        setVerificationEmail(err.email || email);
+        setError(err.message);
+      }
+      // Handle registration success with email verification required
+      else if (mode === "register" && err.code === "REGISTRATION_SUCCESS_VERIFICATION_REQUIRED") {
+        setShowRegistrationSuccess(true);
+        setRegistrationSuccessData({
+          email: err.email || email,
+          message: err.message
+        });
+      } else {
+        // Handle other errors - now showing the actual backend message
+        setError(err.message || (mode === "login" ? "Invalid credentials" : "Registration failed"));
+      }
     }
   };
 
@@ -205,7 +213,23 @@ export default function AuthForm({ mode }: AuthFormProps) {
           required
         />
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        {error && (
+          <div className={`text-sm p-3 rounded-lg ${
+            emailVerificationRequired 
+              ? "bg-yellow-50 text-yellow-800 border border-yellow-200" 
+              : "bg-red-50 text-red-800 border border-red-200"
+          }`}>
+            <p>{error}</p>
+            {emailVerificationRequired && (
+              <div className="mt-3">
+                <p className="text-sm">
+                  Please check your inbox and click the verification link to activate your account. 
+                  Don't forget to check your spam folder if you don't see the email.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         <button
           type="submit"
@@ -219,6 +243,70 @@ export default function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
+    <>
+      {/* Registration Success Modal */}
+      {showRegistrationSuccess && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-md w-full p-6 mx-4">
+            <div className="text-center">
+              {/* Success Icon */}
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <svg
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              
+              {/* Title */}
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Account Created Successfully!
+              </h3>
+              
+              {/* Message */}
+              <div className="text-gray-600 mb-6 space-y-2">
+                <p>{registrationSuccessData?.message}</p>
+                <p className="text-sm">
+                  Please check your inbox at <strong>{registrationSuccessData?.email}</strong> and 
+                  click the verification link to activate your account.
+                </p>
+                <p className="text-sm text-gray-500">
+                  Don't forget to check your spam folder if you don't see the email.
+                </p>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    setShowRegistrationSuccess(false);
+                    router.push("/auth/login");
+                  }}
+                  className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Go to Login
+                </button>
+                <button
+                  onClick={() => setShowRegistrationSuccess(false)}
+                  className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Registration Form */}
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* User Information Section */}
       <div className="space-y-4">
@@ -378,7 +466,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
         )}
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <div className="bg-red-50 text-red-800 border border-red-200 text-sm p-3 rounded-lg">
+          {error}
+        </div>
+      )}
 
       <button
         type="submit"
@@ -388,5 +480,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {isLoading ? "Encrypting..." : "Encrypt Device"}
       </button>
     </form>
+  </>
   );
 }

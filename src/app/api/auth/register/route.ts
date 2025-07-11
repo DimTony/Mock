@@ -4,8 +4,6 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
 
-    // console.log("ggg", formData);
-
     // Extract all form data
     const registrationData = {
       username: formData.get("username"),
@@ -39,17 +37,45 @@ export async function POST(request: NextRequest) {
       body: apiFormData,
     });
 
-    // console.log("REg API response", await response.json());
+    const result = await response.json();
+
+    console.log("REG API response", result);
 
     if (!response.ok) {
-      const result = await response.json();
-
-      throw new Error(result?.message.toString() || "Registration failed");
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            result?.message === "Failed to upload files to Cloudinary"
+              ? "Failed to upload"
+              : result?.message || "Registration failed",
+        },
+        { status: response.status }
+      );
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    // Handle successful registration that requires email verification
+    if (result.success && result.data?.requiresVerification) {
+      return NextResponse.json({
+        success: true,
+        message: result.message,
+        data: result.data,
+      });
+    }
+
+    // Handle normal successful registration (user logged in immediately)
+    return NextResponse.json({
+      success: true,
+      data: result,
+    });
   } catch (error) {
-    return NextResponse.json({ error: "Registration failed" }, { status: 400 });
+    console.error("Registration API Error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Registration failed",
+      },
+      { status: 500 }
+    );
   }
 }

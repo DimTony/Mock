@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     const userResult = await response.json();
 
-    // console.log("USER API response", await response.json());
+    console.log("USER API response", userResult);
 
     if (!userResult.success) {
       throw new Error(
