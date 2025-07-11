@@ -11,8 +11,11 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ username: email, password }),
     });
 
+    const result = await response.json();
+
+    console.log("API LOGIN Result:", result);
+
     if (!response.ok) {
-      const result = await response.json();
 
       throw new Error(result?.message.toString() || "Authentication failed");
     }

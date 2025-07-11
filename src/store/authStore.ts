@@ -20,6 +20,8 @@ export const useAuthStore = create<AuthState>()(
 
           const result = await res.json();
 
+          // console.log("STORE USER Result:", result);
+
           if (!result.success) {
             throw new Error(result?.error || "Login failed");
           }
