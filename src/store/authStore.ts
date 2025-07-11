@@ -7,7 +7,8 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
-      isLoading: true, // Start with loading true
+      isLoading: true,
+      isCheckingAuth: false, // Add this to prevent multiple simultaneous calls
 
       login: async (email: string, password: string) => {
         set({ isLoading: true });
@@ -20,10 +21,7 @@ export const useAuthStore = create<AuthState>()(
 
           const result = await res.json();
 
-          // console.log("STORE LOGIN Result:", result);
-
           if (!result.success) {
-            // Check if it's an email verification issue
             if (result.data?.requiresVerification) {
               const error = new Error(
                 result.error || "Email verification required"
@@ -32,8 +30,6 @@ export const useAuthStore = create<AuthState>()(
               (error as any).email = result.data.email;
               throw error;
             }
-
-            // For other errors, throw with the actual message
             throw new Error(result.error || "Login failed");
           }
 
@@ -41,22 +37,8 @@ export const useAuthStore = create<AuthState>()(
             token: result?.data?.accessToken,
           });
 
-          const token = useAuthStore.getState().token;
-
-          const response = await fetch("/api/user", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          const userResult = await response.json();
-
-          // console.log("STORE USER Result:", userResult);
-
-          if (!userResult.success) throw new Error("User Profile fetch failed");
-
-          set({ user: userResult?.data, isLoading: false });
+          // Fetch user data immediately after login
+          await get().fetchUserData();
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -84,13 +66,10 @@ export const useAuthStore = create<AuthState>()(
 
           const result = await res.json();
 
-          // console.log("STORE REG Result:", result);
-
           if (!result.success) {
             throw new Error(result?.error || "Registration failed");
           }
 
-          // Check if registration was successful but requires email verification
           if (result.success && result.data?.requiresVerification) {
             const error = new Error(
               result.message ||
@@ -105,22 +84,8 @@ export const useAuthStore = create<AuthState>()(
             token: result?.data?.accessToken,
           });
 
-          const token = useAuthStore.getState().token;
-
-          const response = await fetch("/api/user", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          const userResult = await response.json();
-
-          // console.log("STORE USER Result:", userResult);
-
-          if (!userResult.success) throw new Error("User Profile fetch failed");
-
-          set({ user: userResult?.data, isLoading: false });
+          // Fetch user data immediately after registration
+          await get().fetchUserData();
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -128,22 +93,19 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        set({ user: null, token: null });
+        set({ user: null, token: null, isLoading: false });
       },
 
-      checkAuth: async () => {
-        const { token } = get();
+      // Separate function to fetch user data
+      fetchUserData: async () => {
+        const { token, isCheckingAuth } = get();
 
-        // If no token, clear user and stop loading
-        if (!token) {
-          set({ user: null, isLoading: false });
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
           return;
         }
 
-        set({ isLoading: true });
-
         try {
-          // Validate token and fetch user data
           const response = await fetch("/api/user", {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -153,32 +115,79 @@ export const useAuthStore = create<AuthState>()(
 
           const userResult = await response.json();
 
-          // console.log("STORE AUTH CHECK Result:", userResult);
+          if (!userResult.success) {
+            throw new Error("User Profile fetch failed");
+          }
+
+          set({
+            user: userResult?.data,
+            isLoading: false,
+          });
+        } catch (error) {
+          console.error("Fetch user data failed:", error);
+          set({ user: null, token: null, isLoading: false });
+          throw error;
+        }
+      },
+
+      checkAuth: async () => {
+        const { token, isCheckingAuth } = get();
+
+        // Prevent multiple simultaneous calls
+        if (isCheckingAuth) {
+          console.log("Auth check already in progress, skipping...");
+          return;
+        }
+
+        // If no token, clear user and stop loading
+        if (!token) {
+          set({ user: null, isLoading: false });
+          return;
+        }
+
+        set({ isLoading: true, isCheckingAuth: true });
+
+        try {
+          const response = await fetch("/api/user", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const userResult = await response.json();
 
           if (!userResult.success) {
-            // Token is invalid/expired, clear auth state
             console.log("Token invalid, clearing auth state");
-            set({ user: null, token: null, isLoading: false });
+            set({
+              user: null,
+              token: null,
+              isLoading: false,
+              isCheckingAuth: false,
+            });
             return;
           }
 
-          // Token is valid, update user data
-          set({ user: userResult?.data, isLoading: false });
+          set({
+            user: userResult?.data,
+            isLoading: false,
+            isCheckingAuth: false,
+          });
         } catch (error) {
-          // Network error or other issues, clear auth state
           console.error("Auth check failed:", error);
-          set({ user: null, token: null, isLoading: false });
+          set({
+            user: null,
+            token: null,
+            isLoading: false,
+            isCheckingAuth: false,
+          });
         }
       },
     }),
     {
       name: "auth-storage",
-      onRehydrateStorage: () => (state) => {
-        // Called after rehydration, check auth and validate token
-        if (state) {
-          state.checkAuth();
-        }
-      },
+      // Remove the onRehydrateStorage callback to prevent automatic checkAuth
+      // We'll handle this manually in the app
     }
   )
 );

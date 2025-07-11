@@ -14,13 +14,11 @@ export default function ProtectedRoute({
   children,
   fallback,
 }: ProtectedRouteProps) {
-  const { user, isLoading, checkAuth } = useAuthStore();
+  const { user, isLoading } = useAuthStore();
   const router = useRouter();
 
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
+  // Only redirect if not loading and no user - don't call checkAuth here
+  // since it's already called in the main app initialization
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/auth/login");

@@ -1,3 +1,4 @@
+import { User } from "@/types/auth";
 import React from "react";
 
 interface ProgressCardProps {
@@ -154,7 +155,11 @@ interface CarouselItem {
   color: string;
 }
 
-const SnapCarousel: React.FC = () => {
+interface SnapCarouselProps {
+  subscriptions: CarouselItem;
+}
+
+const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
   // Sample data with duration instead of endDate
   const carouselItems: CarouselItem[] = [
     {

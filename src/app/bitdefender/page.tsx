@@ -120,7 +120,7 @@ const BitDefender = () => {
 
         {/* Scrollable content area */}
         <div className="flex-1 overflow-y-auto">
-          <SnapCarousel />
+          {/* <SnapCarousel subscriptions={user.subscriptions} /> */}
 
           <div className="flex flex-col gap-4 mt-6">
             <span className="text-lg font-semibold text-gray-800">

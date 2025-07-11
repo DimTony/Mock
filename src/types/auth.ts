@@ -21,12 +21,15 @@ export interface RegisterData {
   files: File[];
 }
 
+
 export interface AuthState {
   user: User | null;
   token: string | null;
   isLoading: boolean;
+  isCheckingAuth: boolean; // Add this new property
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
-  checkAuth: () => void;
+  checkAuth: () => Promise<void>;
+  fetchUserData: () => Promise<void>; // Add this new method
 }
