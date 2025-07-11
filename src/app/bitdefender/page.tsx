@@ -97,13 +97,11 @@ const BitDefender = () => {
   ];
 
   return (
-    <div
-      // className="min-h-screen bg-gray-50 px-4 pb-8 pt-4 bg-[url('/defBack.jpg')] bg-cover bg-center"
-      className="min-h-screen px-4 pb-8 pt-4 bg-cover bg-center "
-    >
+    <div className="h-screen overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
       <div className="back-image" />
 
-      <div className="flex items-center gap-3">
+      {/* Header - Fixed height */}
+      <div className="flex items-center gap-3 flex-shrink-0 mb-4">
         <ProfileDrawer user={mockUser} onLogout={logout} />
         <span
           className={`text-[1rem] text-[#003883]`}
@@ -113,15 +111,19 @@ const BitDefender = () => {
         </span>
       </div>
 
-      <SnapCarousel />
+      {/* Carousel - Takes remaining space */}
+      <div className="flex-1 overflow-hidden">
+        <SnapCarousel />
+      </div>
 
-      <button className="absolute bottom-10 right-5">
+      {/* Floating button - Absolute positioned */}
+      <button className="absolute bottom-10 right-5 z-20">
         <Image
           src="/plus-circle.svg"
           alt="add"
           width={60}
           height={60}
-          className="rounded-full z-20"
+          className="rounded-full"
         />
       </button>
     </div>
