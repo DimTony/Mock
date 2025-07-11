@@ -4,9 +4,10 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogOut, User } from "lucide-react";
 import Image from "next/image";
+import { User as UserType } from "@/types/auth";
 
 export default function ProfileDrawer({ user, onLogout }: {
-  user: { name: string; email: string; image?: string };
+  user: UserType;
   onLogout: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,7 +58,7 @@ export default function ProfileDrawer({ user, onLogout }: {
                 )}
                 {/* <div className="w-[40px] h-[40px] bg-transparent " /> */}
                 <div>
-                  <p className="font-semibold">{user.name}</p>
+                  <p className="font-semibold">{user.username}</p>
                   <p className="text-sm text-gray-500">{user.email}</p>
                 </div>
               </div>

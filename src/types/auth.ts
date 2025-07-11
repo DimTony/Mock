@@ -1,16 +1,20 @@
 export interface User {
-  id: string;
+  accessToken: string;
+  createdAt: string;
   email: string;
-  name: string;
-  phone?: string;
+  refreshToken: string;
+  updatedAt: string;
+  username: string;
+  _id: string;
+  image?: string;
 }
 
 export interface RegisterData {
-  name: string;
+  username: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   password: string;
-  confirmPassword: string;
+  // confirmPassword: string;
   deviceName: string;
   imei: string;
   plan: string;

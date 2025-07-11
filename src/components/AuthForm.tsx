@@ -162,21 +162,22 @@ export default function AuthForm({ mode }: AuthFormProps) {
         }
 
         const registerData: RegisterData = {
-          name,
+          username: name,
           email,
-          phone,
           password,
-          confirmPassword,
           deviceName,
           imei: deviceIMEI,
+          phoneNumber: phone,
           plan: selectedPlan,
           files,
+          // confirmPassword,
         };
 
         await register(registerData);
       }
       router.push("/dashboard");
     } catch (err) {
+      // console.log("DDD", err);
       setError(
         mode === "login" ? "Invalid credentials" : "Registration failed"
       );

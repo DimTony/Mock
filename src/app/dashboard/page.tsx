@@ -55,6 +55,10 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState(true);
 
   useEffect(() => {
+    console.log("UUU", user);
+  }, [user]);
+
+  useEffect(() => {
     checkAuth();
   }, [checkAuth]);
 
@@ -107,7 +111,7 @@ export default function Dashboard() {
             height={30}
             className="rounded-full"
           /> */}
-            <ProfileDrawer user={mockUser} onLogout={logout} />
+            <ProfileDrawer user={user} onLogout={logout} />
             <h1
               className={`text-[1rem] text-white`}
               style={{ fontFamily: "Poppins" }}
@@ -117,7 +121,7 @@ export default function Dashboard() {
                 className={`text-[1rem] text-[#87ceeb]`}
                 style={{ fontFamily: "Lobster" }}
               >
-                {user.name}!
+                {user.username}!
               </span>
             </h1>
           </div>

@@ -8,11 +8,13 @@ export async function POST(request: NextRequest) {
     const response = await fetch(`${process.env.API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username: email, password }),
     });
 
     if (!response.ok) {
-      throw new Error("Authentication failed");
+      const result = await response.json();
+
+      throw new Error(result?.message.toString() || "Authentication failed");
     }
 
     const data = await response.json();

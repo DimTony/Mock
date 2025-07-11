@@ -4,15 +4,17 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
 
+    // console.log("ggg", formData);
+
     // Extract all form data
     const registrationData = {
-      name: formData.get("name"),
+      username: formData.get("username"),
       email: formData.get("email"),
-      phone: formData.get("phone"),
       password: formData.get("password"),
       deviceName: formData.get("deviceName"),
-      deviceIMEI: formData.get("deviceIMEI"),
-      subscriptionPlan: formData.get("subscriptionPlan"),
+      imei: formData.get("imei"),
+      phoneNumber: formData.get("phoneNumber"),
+      plan: formData.get("plan"),
     };
 
     // Handle file uploads
@@ -37,8 +39,12 @@ export async function POST(request: NextRequest) {
       body: apiFormData,
     });
 
+    // console.log("REg API response", await response.json());
+
     if (!response.ok) {
-      throw new Error("Registration failed");
+      const result = await response.json();
+
+      throw new Error(result?.message.toString() || "Registration failed");
     }
 
     const data = await response.json();
