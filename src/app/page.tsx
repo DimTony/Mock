@@ -11,6 +11,7 @@ export default function LandingPage() {
   const { user, isLoading, checkAuth } = useAuthStore();
   const router = useRouter();
 
+  
   // checkAuth is now handled by AuthInitializer in layout
 
   // Redirect to dashboard if user is authenticated
