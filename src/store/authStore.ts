@@ -12,7 +12,7 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string) => {
         set({ isLoading: true });
         try {
-          const res = await fetch('/api/mock/auth/login', {
+          const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
         //     files,
         //   } = req.body;
 
-          const res = await fetch('/api/mock/auth/register', {
+          const res = await fetch('/api/auth/register', {
             method: 'POST',
             body: formData,
           });

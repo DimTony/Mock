@@ -1,5 +1,6 @@
 "use client";
 
+import ProtectedRoute from "@/components/Guard";
 import ProfileDrawer from "@/components/Profiler";
 import { useAuthStore } from "@/store/authStore";
 import React from "react";
@@ -14,6 +15,8 @@ const ManageSubscriptions = () => {
   };
 
   return (
+        <ProtectedRoute>
+    
     <div className="h-screen overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
       <div className="back-image" />
 
@@ -28,6 +31,8 @@ const ManageSubscriptions = () => {
         </span>
       </div>
     </div>
+        </ProtectedRoute>
+    
   );
 };
 

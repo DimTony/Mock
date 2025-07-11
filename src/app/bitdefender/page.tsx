@@ -1,5 +1,6 @@
 "use client";
 
+import ProtectedRoute from "@/components/Guard";
 import ProfileDrawer from "@/components/Profiler";
 import SnapCarousel, { ProgressCard } from "@/components/Snap";
 import { useAuthStore } from "@/store/authStore";
@@ -100,6 +101,8 @@ const BitDefender = () => {
   const isFeatureLocked = true; // You can make this dynamic based on user subscription
 
   return (
+        <ProtectedRoute>
+    
     <div className="h-[100dvh] overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
       <div className="back-image" />
 
@@ -173,6 +176,8 @@ const BitDefender = () => {
       </div>
 
     </div>
+        </ProtectedRoute>
+    
   );
 };
 

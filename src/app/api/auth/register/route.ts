@@ -29,10 +29,10 @@ export async function POST(request: NextRequest) {
     });
 
     files.forEach((file, index) => {
-      apiFormData.append(`documents`, file);
+      apiFormData.append(`files`, file);
     });
 
-    const response = await fetch(`${process.env.API_BASE_URL}/auth/register`, {
+    const response = await fetch(`${process.env.API_BASE_URL}/auth/create`, {
       method: "POST",
       body: apiFormData,
     });

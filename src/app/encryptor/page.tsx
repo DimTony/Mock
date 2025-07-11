@@ -1,9 +1,12 @@
-import React from 'react'
+import ProtectedRoute from "@/components/Guard";
+import React from "react";
 
 const Encryptor = () => {
   return (
-    <div>Encryptor</div>
-  )
-}
+    <ProtectedRoute>
+      <div>Encryptor</div>
+    </ProtectedRoute>
+  );
+};
 
-export default Encryptor
+export default Encryptor;
