@@ -14,25 +14,25 @@ const ManageSubscriptions = () => {
     image: "/avatar1.png", // Optional
   };
 
-  return (
-        <ProtectedRoute>
-    
-    <div className="h-screen overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
-      <div className="back-image" />
+  if (!user) return null;
 
-      {/* Header - Fixed height */}
-      <div className="flex items-center gap-3 flex-shrink-0 mb-4">
-        <ProfileDrawer user={mockUser} onLogout={logout} />
-        <span
-          className={`text-[1rem] text-[#003883]`}
-          style={{ fontFamily: "Lobster" }}
-        >
-          BitDefender
-        </span>
+  return (
+    <ProtectedRoute>
+      <div className="h-screen overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
+        <div className="back-image" />
+
+        {/* Header - Fixed height */}
+        <div className="flex items-center gap-3 flex-shrink-0 mb-4">
+          <ProfileDrawer user={user} onLogout={logout} />
+          <span
+            className={`text-[1rem] text-[#003883]`}
+            style={{ fontFamily: "Lobster" }}
+          >
+            BitDefender
+          </span>
+        </div>
       </div>
-    </div>
-        </ProtectedRoute>
-    
+    </ProtectedRoute>
   );
 };
 
