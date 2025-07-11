@@ -3,8 +3,9 @@
 import ProfileDrawer from "@/components/Profiler";
 import SnapCarousel, { ProgressCard } from "@/components/Snap";
 import { useAuthStore } from "@/store/authStore";
-import { CirclePlus, Info, UserCog } from "lucide-react";
+import { CirclePlus, Info, Lock, UserCog } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 const BitDefender = () => {
@@ -96,6 +97,8 @@ const BitDefender = () => {
     },
   ];
 
+  const isFeatureLocked = true; // You can make this dynamic based on user subscription
+
   return (
     <div className="h-screen overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
       <div className="back-image" />
@@ -111,8 +114,8 @@ const BitDefender = () => {
         </span>
       </div>
 
-      {/* Carousel - Takes remaining space */}
-      <div className="flex-1 overflow-hidden">
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto">
         <SnapCarousel />
 
         <div className="flex flex-col gap-4 mt-6">
@@ -120,35 +123,57 @@ const BitDefender = () => {
             Quick Actions
           </span>
           <div className="flex gap-4">
-            <button className="bg-white rounded-xl flex flex-col items-center gap-3 p-6 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 flex-1 border border-gray-100">
-              <div className="p-3 bg-blue-50 rounded-full">
+            {/* Fix Errors Button - Locked */}
+            <button className="relative overflow-hidden bg-white rounded-xl flex flex-col items-center gap-3 p-6 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 flex-1 border border-gray-100">
+              {isFeatureLocked && (
+                <>
+                  {/* Blur/Dim Overlay */}
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-10" />
+
+                  {/* Lock Tag */}
+                  <div className="absolute top-2 right-2 z-10 bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                    <Lock size={12} /> Suite
+                  </div>
+                </>
+              )}
+              <div className="p-3 z-20 bg-blue-50 rounded-full relative">
                 <Info className="w-6 h-6 text-blue-600" />
               </div>
-              <span className="text-sm font-medium text-gray-700 text-center">
+              <span className="text-sm font-medium text-gray-700 text-center relative z-20">
                 Fix Errors
               </span>
             </button>
 
-            <button className="bg-white rounded-xl flex flex-col items-center gap-3 p-6 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 flex-1 border border-gray-100">
+            {/* Manage Encryptions Button - Active */}
+            <Link
+              href="/bitdefender/manage"
+              className="bg-white rounded-xl flex flex-col items-center gap-3 p-6 shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 flex-1 border border-gray-100"
+            >
               <div className="p-3 bg-green-50 rounded-full">
                 <UserCog className="w-6 h-6 text-green-600" />
               </div>
               <span className="text-sm font-medium text-gray-700 text-center">
                 Manage Encryptions
               </span>
-            </button>
+            </Link>
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 mt-6">
+        <div className="flex flex-col gap-4 mt-6 mb-20">
           <span className="text-lg font-semibold text-gray-800">
-            Recent
+            Encryption History
           </span>
+          {/* Add your encryption history content here */}
+          <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
+            <p className="text-gray-500 text-center">
+              No encryption history yet
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Floating button - Absolute positioned */}
-      <button className="absolute bottom-10 right-5 z-20">
+      <button className="absolute bottom-10 right-5 z-30">
         <Image
           src="/plus-circle.svg"
           alt="add"
