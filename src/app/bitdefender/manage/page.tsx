@@ -157,7 +157,7 @@ const ManageSubscriptions = () => {
 
   return (
     <ProtectedRoute>
-      <div className="h-screen overflow-hidden px-4 py-4 bg-cover bg-center relative flex flex-col">
+      <div className="min-h-screen px-4 py-4 bg-cover bg-center relative flex flex-col overflow-y-auto">
         <div className="back-image" />
 
         <div className="flex justify-between items-center gap-3 flex-shrink-0 mb-4">
@@ -170,13 +170,14 @@ const ManageSubscriptions = () => {
               Manage Encryptions
             </span>
           </div>
+
           <ProfileDrawer user={user} onLogout={logout} />
         </div>
 
-        <div className="py-4 space-y-4 overflow-x-auto">
+        <div className="py-4 space-y-4 flex-1">
           {/* Quick Stats Cards */}
-          <div className="flex gap-3 min-w-[600px]">
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm flex-1">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white rounded-lg p-3 text-center shadow-sm">
               <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mx-auto mb-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
               </div>
@@ -185,7 +186,8 @@ const ManageSubscriptions = () => {
               </p>
               <p className="text-xs text-gray-600">Active</p>
             </div>
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm flex-1">
+
+            <div className="bg-white rounded-lg p-3 text-center shadow-sm">
               <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full mx-auto mb-2">
                 <AlertTriangle className="w-4 h-4 text-red-600" />
               </div>
@@ -194,7 +196,8 @@ const ManageSubscriptions = () => {
               </p>
               <p className="text-xs text-gray-600">Expired</p>
             </div>
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm flex-1">
+
+            <div className="bg-white rounded-lg p-3 text-center shadow-sm">
               <div className="flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-full mx-auto mb-2">
                 <Clock className="w-4 h-4 text-yellow-600" />
               </div>
@@ -206,7 +209,7 @@ const ManageSubscriptions = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="bg-white rounded-lg p-1 shadow-sm min-w-[600px]">
+          <div className="bg-white rounded-lg p-1 shadow-sm">
             <div className="flex">
               {[
                 { key: "all", label: "All" },
@@ -230,12 +233,9 @@ const ManageSubscriptions = () => {
           </div>
 
           {/* Devices List */}
-          <div className="flex gap-3 min-w-[600px]">
+          <div className="space-y-3">
             {filteredDevices.map((device) => (
-              <div
-                key={device.id}
-                className="bg-white rounded-lg shadow-sm w-[300px] flex-shrink-0"
-              >
+              <div key={device.id} className="bg-white rounded-lg shadow-sm">
                 <div className="p-4">
                   {/* Device Header */}
                   <div className="flex items-start gap-3 mb-3">
@@ -362,7 +362,7 @@ const ManageSubscriptions = () => {
 
           {/* Empty State */}
           {filteredDevices.length === 0 && (
-            <div className="text-center py-12 min-w-[600px]">
+            <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-8 h-8 text-gray-400" />
               </div>
