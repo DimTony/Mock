@@ -167,86 +167,6 @@ interface SnapCarouselProps {
 }
 
 const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
-  // Sample data with duration instead of endDate
-  const carouselItems: CarouselItem[] = [
-    {
-      id: 1,
-      title: "Yanga",
-      iuc: 7021955561,
-      status: "Active",
-      startDate: "2025-07-09",
-      duration: 30, // 30-day subscription
-      description: "Premium subscription package",
-      content: "30-day Premium Plan",
-      color: "bg-blue-500",
-    },
-    {
-      id: 2,
-      title: "StarTimes",
-      iuc: 7021955562,
-      status: "Active",
-      startDate: "2024-05-15",
-      duration: 60, // 60-day subscription
-      description: "Extended subscription package",
-      content: "60-day Extended Plan",
-      color: "bg-green-500",
-    },
-    {
-      id: 3,
-      title: "DStv",
-      iuc: 7021955563,
-      status: "Active",
-      startDate: "2024-04-10",
-      duration: 90, // 90-day subscription
-      description: "Premium long-term package",
-      content: "90-day Premium Plan",
-      color: "bg-purple-500",
-    },
-    {
-      id: 4,
-      title: "GOtv",
-      iuc: 7021955564,
-      status: "Expired",
-      startDate: "2024-03-01",
-      duration: 30, // 30-day subscription (expired)
-      description: "Basic subscription package",
-      content: "30-day Basic Plan",
-      color: "bg-red-500",
-    },
-    {
-      id: 5,
-      title: "Netflix",
-      iuc: 7021955565,
-      status: "Active",
-      startDate: "2024-07-01",
-      duration: 30, // 30-day subscription (fresh)
-      description: "Streaming subscription",
-      content: "30-day Streaming Plan",
-      color: "bg-yellow-500",
-    },
-    {
-      id: 6,
-      title: "Showmax",
-      iuc: 7021955566,
-      status: "Active",
-      startDate: "2024-06-15",
-      duration: 45, // 45-day subscription
-      description: "Entertainment package",
-      content: "45-day Entertainment Plan",
-      color: "bg-pink-500",
-    },
-    {
-      id: 7,
-      title: "Prime Video",
-      iuc: 7021955567,
-      status: "Active",
-      startDate: "2024-05-01",
-      duration: 60, // 60-day subscription
-      description: "Video streaming service",
-      content: "60-day Streaming Plan",
-      color: "bg-indigo-500",
-    },
-  ];
 
   // Calculate progress percentage based on subscription duration
   const calculateProgress = (start: string, durationDays: number): number => {
@@ -431,13 +351,13 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  <h3 className="text-lg font-bold text-gray-900">
                     {title}
                   </h3>
                   <p className="text-sm text-gray-600">IMEI: {item.imei}</p>
                 </div>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                  className={`px-2 py-1 rounded-full text-[10px] font-medium mt-1 ${getStatusColor(
                     item.status
                   )}`}
                 >
