@@ -3,6 +3,7 @@
 import ProtectedRoute from "@/components/Guard";
 import ProfileDrawer from "@/components/Profiler";
 import SnapCarousel, { ProgressCard } from "@/components/Snap";
+import TransactionHistory from "@/components/Transactions";
 import { useAuthStore } from "@/store/authStore";
 import { CirclePlus, Info, Lock, UserCog } from "lucide-react";
 import Image from "next/image";
@@ -85,17 +86,7 @@ const BitDefender = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 mt-6 mb-20">
-            <span className="text-lg font-semibold text-gray-800">
-              Encryption History
-            </span>
-            {/* Add your encryption history content here */}
-            <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
-              <p className="text-gray-500 text-center">
-                No encryption history yet
-              </p>
-            </div>
-          </div>
+          <TransactionHistory user={user} />
         </div>
       </div>
     </ProtectedRoute>

@@ -13,6 +13,52 @@ export interface Subscription {
   _id: string;
 }
 
+export interface TransactionMetadata {
+  deviceInfo: {
+    imei: string;
+    deviceName: string;
+  };
+  submissionNotes: string;
+  encryptionCards: string[];
+  phoneNumber: string;
+  email: string;
+}
+
+export interface TransactionSubscription {
+  _id: string;
+  imei: string;
+  deviceName: string;
+  plan: string;
+  status: string;
+}
+
+export interface TransactionDevice {
+  _id: string;
+  imei: string;
+  deviceName: string;
+}
+
+export interface Transaction {
+  _id: string;
+  user: string;
+  transactionId: string;
+  type: string;
+  status: string;
+  amount: number;
+  currency: string;
+  plan: string;
+  paymentMethod: string;
+  queuePosition: string;
+  queuedAt?: string;
+  initiatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  metadata: TransactionMetadata;
+  subscription: TransactionSubscription;
+  device: TransactionDevice;
+  relatedTransactions: string[];
+}
+
 export interface User {
   accessToken: string;
   createdAt: string;
@@ -41,6 +87,11 @@ export interface User {
   role: string;
   stats: { messageCount: number; activeDevices: number };
   subscription: { status: string };
+  // Add these new fields for transaction history
+  transactionHistory: Transaction[];
+  transactionStats: any[];
+  totalSpent: number;
+  completedTransactions: number;
 }
 
 export interface RegisterData {

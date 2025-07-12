@@ -399,7 +399,7 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
   return (
     <div className="w-full max-w-6xl mx-auto py-4">
       <div
-        className="flex overflow-x-auto space-x-4 pb-4 snap-x snap-mandatory scroll-smooth px-4"
+        className="flex overflow-x-auto space-x-4 pb-4 snap-x snap-mandatory scroll-smooth"
         style={{
           scrollbarWidth: "thin",
           scrollbarColor: "#cbd5e1 #f1f5f9",
