@@ -5,7 +5,7 @@ import ProfileDrawer from "@/components/Profiler";
 import SnapCarousel, { ProgressCard } from "@/components/Snap";
 import TransactionHistory from "@/components/Transactions";
 import { useAuthStore } from "@/store/authStore";
-import { CirclePlus, Info, Lock, UserCog } from "lucide-react";
+import { ChevronLeft, CirclePlus, Info, Lock, UserCog } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,14 +31,21 @@ const BitDefender = () => {
         <div className="back-image" />
 
         {/* Header - Fixed height */}
-        <div className="flex items-center gap-3 flex-shrink-0 mb-4">
+        <div className="flex justify-between items-center gap-3 flex-shrink-0 mb-4">
+          <div className="flex gap-4 items-center">
+            <Link href="/dashboard">
+              <ChevronLeft />
+            </Link>
+
+            <span
+              className={`text-[1rem] text-[#003883]`}
+              style={{ fontFamily: "Lobster" }}
+            >
+              BitDefender
+            </span>
+          </div>
+
           <ProfileDrawer user={user} onLogout={logout} />
-          <span
-            className={`text-[1rem] text-[#003883]`}
-            style={{ fontFamily: "Lobster" }}
-          >
-            BitDefender
-          </span>
         </div>
 
         {/* Scrollable content area */}
