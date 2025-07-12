@@ -45,7 +45,7 @@ const BitDefender = () => {
         <div className="flex-1 overflow-y-auto">
           <SnapCarousel subscriptions={user.subscriptions} />
 
-          <div className="flex flex-col gap-4 mt-6">
+          <div className="flex flex-col gap-4">
             <span className="text-lg font-semibold text-gray-800">
               Quick Actions
             </span>
