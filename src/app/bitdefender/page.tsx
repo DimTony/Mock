@@ -33,9 +33,10 @@ const BitDefender = () => {
         {/* Header - Fixed height */}
         <div className="flex justify-between items-center gap-3 flex-shrink-0 mb-4">
           <div className="flex gap-4 items-center">
-            <Link href="/dashboard">
-              <ChevronLeft />
-            </Link>
+            {/* <Link href="/dashboard"> */}
+            <ChevronLeft onClick={() => router.back()} />
+
+            {/* </Link> */}
 
             <span
               className={`text-[1rem] text-[#003883]`}
