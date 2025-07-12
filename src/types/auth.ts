@@ -1,4 +1,4 @@
-export interface Subscription {
+export interface Subscriptionaaaa {
   createdAt: string;
   deviceName: string;
   email: string;
@@ -11,6 +11,24 @@ export interface Subscription {
   updatedAt: string;
   user: string;
   _id: string;
+}
+
+export interface Subscription {
+  _id: string;
+  user: string;
+  imei: string;
+  deviceName: string;
+  phone: string;
+  email: string;
+  plan: string;
+  price: number;
+  queuePosition: string;
+  status: "PENDING" | "QUEUED" | "ACTIVE" | "EXPIRED" | "DECLINED";
+  createdAt: string;
+  updatedAt: string;
+  startDate?: string;
+  endDate?: string;
+  activatedAt?: string;
 }
 
 export interface TransactionMetadata {
