@@ -143,16 +143,14 @@ const ManageSubscriptions = () => {
     return devices.filter((d) => d.encryptionStatus === status).length;
   };
 
-  // Mobile back handler (you can connect this to your router)
   const handleBack = () => {
-    // router.back() or navigate to previous page
-    console.log("Navigate back");
+    router.back();
   };
 
   const mockUser = {
     name: "Ash Ketchum",
     email: "ash@example.com",
-    image: "/avatar1.png", // Optional
+    image: "/avatar1.png",
   };
 
   if (!user) return null;
@@ -164,25 +162,21 @@ const ManageSubscriptions = () => {
 
         <div className="flex justify-between items-center gap-3 flex-shrink-0 mb-4">
           <div className="flex gap-4 items-center">
-            {/* <Link href="/bitdefender"> */}
-            <ChevronLeft onClick={() => router.back()} />
-            {/* </Link> */}
-
+            <ChevronLeft onClick={handleBack} className="cursor-pointer" />
             <span
-              className={`text-[1rem] text-[#003883]`}
+              className="text-[1rem] text-[#003883]"
               style={{ fontFamily: "Lobster" }}
             >
               Manage Encryptions
             </span>
           </div>
-
           <ProfileDrawer user={user} onLogout={logout} />
         </div>
 
-        <div className="py-4 space-y-4">
+        <div className="py-4 space-y-4 overflow-x-auto">
           {/* Quick Stats Cards */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm">
+          <div className="flex gap-3 min-w-[600px]">
+            <div className="bg-white rounded-lg p-3 text-center shadow-sm flex-1">
               <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mx-auto mb-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
               </div>
@@ -191,8 +185,7 @@ const ManageSubscriptions = () => {
               </p>
               <p className="text-xs text-gray-600">Active</p>
             </div>
-
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm">
+            <div className="bg-white rounded-lg p-3 text-center shadow-sm flex-1">
               <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full mx-auto mb-2">
                 <AlertTriangle className="w-4 h-4 text-red-600" />
               </div>
@@ -201,8 +194,7 @@ const ManageSubscriptions = () => {
               </p>
               <p className="text-xs text-gray-600">Expired</p>
             </div>
-
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm">
+            <div className="bg-white rounded-lg p-3 text-center shadow-sm flex-1">
               <div className="flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-full mx-auto mb-2">
                 <Clock className="w-4 h-4 text-yellow-600" />
               </div>
@@ -214,7 +206,7 @@ const ManageSubscriptions = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="bg-white rounded-lg p-1 shadow-sm">
+          <div className="bg-white rounded-lg p-1 shadow-sm min-w-[600px]">
             <div className="flex">
               {[
                 { key: "all", label: "All" },
@@ -238,9 +230,12 @@ const ManageSubscriptions = () => {
           </div>
 
           {/* Devices List */}
-          <div className="space-y-3">
+          <div className="flex gap-3 min-w-[600px]">
             {filteredDevices.map((device) => (
-              <div key={device.id} className="bg-white rounded-lg shadow-sm">
+              <div
+                key={device.id}
+                className="bg-white rounded-lg shadow-sm w-[300px] flex-shrink-0"
+              >
                 <div className="p-4">
                   {/* Device Header */}
                   <div className="flex items-start gap-3 mb-3">
@@ -367,7 +362,7 @@ const ManageSubscriptions = () => {
 
           {/* Empty State */}
           {filteredDevices.length === 0 && (
-            <div className="text-center py-12">
+            <div className="text-center py-12 min-w-[600px]">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-8 h-8 text-gray-400" />
               </div>
