@@ -150,8 +150,8 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ user }) => {
 
       <div className="bg-white rounded-xl shadow-md border border-gray-100">
         {/* Header */}
-        <div className="p-4 border-b border-gray-100">
-          {/* Summary Stats Row */}
+        {/* <div className="p-4 border-b border-gray-100">
+          
           <div className="flex justify-between bg-gray-50 rounded-lg p-3">
             <div className="text-center flex-1">
               <p className="text-xs text-gray-500 uppercase tracking-wide">
@@ -181,32 +181,33 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ user }) => {
             </div>
           </div>
 
+        </div> */}
+
           {/* Filter Dropdown */}
-          {showFilter && (
-            <div className="mt-3 space-y-2">
-              <div className="flex gap-2 flex-wrap">
-                {["ALL", "PENDING", "COMPLETED", "FAILED"].map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => {
-                      setFilterStatus(status);
-                      setShowFilter(false);
-                    }}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${
-                      filterStatus === status
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {status === "ALL"
-                      ? "All"
-                      : status.charAt(0) + status.slice(1).toLowerCase()}
-                  </button>
-                ))}
-              </div>
+        {showFilter && (
+          <div className="mt-3 space-y-2">
+            <div className="flex gap-2 flex-wrap">
+              {["ALL", "PENDING", "COMPLETED", "FAILED"].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => {
+                    setFilterStatus(status);
+                    setShowFilter(false);
+                  }}
+                  className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                    filterStatus === status
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {status === "ALL"
+                    ? "All"
+                    : status.charAt(0) + status.slice(1).toLowerCase()}
+                </button>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Transaction List */}
         <div className="divide-y divide-gray-100">
@@ -249,13 +250,13 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ user }) => {
                 </div>
 
                 {/* Expand Indicator */}
-                <div className="flex items-center justify-center pt-2">
+                {/* <div className="flex items-center justify-center pt-2">
                   {expandedTransaction === transaction._id ? (
                     <ChevronDown className="w-5 h-5 text-gray-400" />
                   ) : (
                     <ChevronRight className="w-5 h-5 text-gray-400" />
                   )}
-                </div>
+                </div> */}
               </div>
 
               {/* Expanded Details */}
