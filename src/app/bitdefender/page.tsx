@@ -7,12 +7,18 @@ import { useAuthStore } from "@/store/authStore";
 import { CirclePlus, Info, Lock, UserCog } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 
 const BitDefender = () => {
   const { user, logout, isLoading, checkAuth } = useAuthStore();
+  const router = useRouter();
 
-  useEffect(() => {console.log('BITTTT', user)}, [user])
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push("/");
+    }
+  }, [user, isLoading, router]);
 
   const isFeatureLocked = true; // You can make this dynamic based on user subscription
 
