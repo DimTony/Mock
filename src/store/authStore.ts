@@ -183,6 +183,127 @@ export const useAuthStore = create<AuthState>()(
           });
         }
       },
+
+      checkOnboarding: async (imei: string) => {
+        // set({ isLoading: true });
+
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/device/check", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ imei }),
+          });
+
+          const result = await res.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Device check failed");
+          }
+
+          set({
+            isLoading: false,
+          });
+
+          return result;
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      setupDevice: async (imei: string, deviceName: string) => {
+        // set({ isLoading: true });
+
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const res = await fetch("/api/device/setup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ imei, deviceName }),
+          });
+
+          const result = await res.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "OTP Setup failed");
+          }
+
+          set({
+            isLoading: false,
+          });
+
+          return result;
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      activateSubscription: async (
+        subscriptionId: string,
+        totpCode: string,
+        imei: string
+      ) => {
+        const { token } = get();
+
+        if (!token) {
+          throw new Error("No authentication token");
+        }
+
+        try {
+          const response = await fetch(`/api/subscription/activate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              subscriptionId,
+              imei,
+              totpCode,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            return {
+              success: false,
+              error: result.error || "Failed to activate subscription",
+            };
+          }
+
+          return {
+            success: true,
+            data: result.data,
+          };
+        } catch (error) {
+          console.error("Activate subscription error:", error);
+          return {
+            success: false,
+            error: "Failed to activate subscription",
+          };
+        }
+      },
     }),
     {
       name: "auth-storage",

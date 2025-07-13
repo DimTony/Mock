@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSpring, animated, config } from "@react-spring/web";
 import {
   Shield,
@@ -16,6 +16,7 @@ import {
   Key,
 } from "lucide-react";
 import Image from "next/image";
+import { useAuthStore } from "@/store/authStore";
 
 const pi = Math.PI;
 const tau = 2 * pi;
@@ -73,57 +74,6 @@ interface OnboardedState {
   [key: string]: boolean;
 }
 
-// Mock data with your structure
-const mockDevices: Subscription[] = [
-  {
-    _id: "6871ce7238ec7837f91af599",
-    user: "6871ce7138ec7837f91af594",
-    imei: "101010101010101",
-    deviceName: "iPhone 14 Pro",
-    phone: "2828282828",
-    email: "tonystoryemail@gmail.com",
-    plan: "mobile-v4-premium",
-    price: 49.99,
-    queuePosition: "1",
-    status: "ACTIVE",
-    createdAt: "2025-07-12T02:54:42.142Z",
-    updatedAt: "2025-07-12T02:54:42.142Z",
-    startDate: "2025-01-01T00:00:00Z",
-    endDate: "2025-02-15T23:59:59Z",
-    activatedAt: "2025-01-01T00:00:00Z",
-  },
-  {
-    _id: "6871ce7238ec7837f91af598",
-    user: "6871ce7138ec7837f91af594",
-    imei: "202020202020202",
-    deviceName: "Samsung Galaxy S23",
-    phone: "3939393939",
-    email: "tonystoryemail@gmail.com",
-    plan: "mobile-v4-basic",
-    price: 24.99,
-    queuePosition: "2",
-    status: "EXPIRED",
-    createdAt: "2024-12-01T02:54:42.142Z",
-    updatedAt: "2024-12-01T02:54:42.142Z",
-    startDate: "2024-12-01T00:00:00Z",
-    endDate: "2025-01-10T23:59:59Z",
-  },
-  {
-    _id: "6871ce7238ec7837f91af597",
-    user: "6871ce7138ec7837f91af594",
-    imei: "303030303030303",
-    deviceName: "iPad Air",
-    phone: "4040404040",
-    email: "tonystoryemail@gmail.com",
-    plan: "mobile-v5-basic",
-    price: 79.99,
-    queuePosition: "3",
-    status: "PENDING",
-    createdAt: "2025-07-12T02:54:42.142Z",
-    updatedAt: "2025-07-12T02:54:42.142Z",
-  },
-];
-
 const SUBSCRIPTION_TYPES: Record<string, string> = {
   "mobile-v4-basic": "Mobile Only v4 - Basic (30 days)",
   "mobile-v4-premium": "Mobile Only v4 - Premium (60 days)",
@@ -176,7 +126,8 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
   subscription,
   onActivationSuccess,
 }) => {
-  const [devices, setDevices] = useState<Subscription[]>(mockDevices);
+  const { checkOnboarding, setupDevice, activateSubscription } = useAuthStore();
+  const [devices, setDevices] = useState<Subscription[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
   const [showActivation, setShowActivation] = useState<ActivationState>({});
   const [isOnboarded, setIsOnboarded] = useState<OnboardedState>({});
@@ -269,46 +220,53 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
 
   // Activation logic
   const handleActivateClick = async (deviceId: string): Promise<void> => {
-    const device = devices.find((d) => d._id === deviceId);
-    if (!device) return;
+    if (subscription._id !== deviceId) return;
 
     setLoading((prev) => ({ ...prev, [deviceId]: true }));
     setError((prev) => ({ ...prev, [deviceId]: "" }));
 
     try {
-      // Simulate checking if device is onboarded
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const onboardingResponse = await checkOnboarding(subscription.imei);
 
-      // Mock response - you can replace with real API call
-      const mockOnboardingResponse = {
-        isOnboarded: Math.random() > 0.5, // Random for demo
-      };
+      if (!onboardingResponse.success) {
+        setError((prev) => ({
+          ...prev,
+          [deviceId]: onboardingResponse.error || "Device check failed",
+        }));
+        return;
+      }
 
+      const result = onboardingResponse.data;
+
+      // Update onboarded state
       setIsOnboarded((prev) => ({
         ...prev,
-        [deviceId]: mockOnboardingResponse.isOnboarded,
+        [deviceId]: result.isOnboarded,
       }));
 
       // If not onboarded, generate QR code
-      if (!mockOnboardingResponse.isOnboarded) {
-        // Mock QR code generation
-        const mockQrCode = `data:image/svg+xml;base64,${btoa(`
-              <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-                <rect width="200" height="200" fill="white"/>
-                <text x="100" y="100" font-family="Arial" font-size="12" text-anchor="middle" fill="black">
-                  QR Code for ${device.deviceName}
-                </text>
-              </svg>
-            `)}`;
+      if (!result.isOnboarded) {
+        const setupResponse = await setupDevice(
+          subscription.imei,
+          subscription.deviceName || `Device ${subscription.imei.slice(-4)}`
+        );
 
-        setQrCodes((prev) => ({ ...prev, [deviceId]: mockQrCode }));
+        if (setupResponse.success) {
+          setQrCodes((prev) => ({
+            ...prev,
+            [deviceId]: setupResponse.data.qrCode,
+          }));
+        } else {
+          throw new Error(setupResponse.error || "Failed to setup device");
+        }
       }
 
+      // Show activation interface
       setShowActivation((prev) => ({ ...prev, [deviceId]: true }));
-    } catch (err) {
+    } catch (err: any) {
       setError((prev) => ({
         ...prev,
-        [deviceId]: "Failed to initiate activation",
+        [deviceId]: err.message || "Failed to initiate activation",
       }));
     } finally {
       setLoading((prev) => ({ ...prev, [deviceId]: false }));
@@ -317,42 +275,62 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
 
   const handleTotpSubmit = async (
     e: React.FormEvent,
-    deviceId: string
+    deviceId: string,
+    imei: string
   ): Promise<void> => {
     e.preventDefault();
     setLoading((prev) => ({ ...prev, [deviceId]: true }));
     setError((prev) => ({ ...prev, [deviceId]: "" }));
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // const device = devices.find((d) => d._id === deviceId);
+      // if (!device) {
+      //   throw new Error("Device not found");
+      // }
 
-      const device = devices.find((d) => d._id === deviceId);
-      if (!device) return;
+      const totpCode = totpCodes[deviceId];
+      if (!totpCode || totpCode.length !== 6) {
+        throw new Error("Please enter a valid 6-digit code");
+      }
 
-      const duration = getPlanDuration(device.plan);
-      const startDate = new Date();
-      const endDate = new Date(Date.now() + duration * 24 * 60 * 60 * 1000);
+      // Call the real activation API
+      const activationResponse = await activateSubscription(deviceId, totpCode, imei);
 
-      // Mock successful activation
+
+      console.log('ACCCCCC', activationResponse)
+
+      if (!activationResponse.success) {
+        throw new Error(activationResponse.error || "Activation failed");
+      }
+
+      // Update local state with the response data
+      const activatedDevice = activationResponse.data;
+
       setDevices((prev) =>
         prev.map((device) =>
           device._id === deviceId
             ? {
                 ...device,
                 status: "ACTIVE" as const,
-                startDate: startDate.toISOString(),
-                endDate: endDate.toISOString(),
-                activatedAt: startDate.toISOString(),
+                startDate: activatedDevice.startDate,
+                endDate: activatedDevice.endDate,
+                activatedAt: activatedDevice.activatedAt,
               }
             : device
         )
       );
 
+      // Clear form and close activation interface
       setShowActivation((prev) => ({ ...prev, [deviceId]: false }));
       setTotpCodes((prev) => ({ ...prev, [deviceId]: "" }));
-    } catch (err) {
-      setError((prev) => ({ ...prev, [deviceId]: "Activation failed" }));
+
+      // Call success callback
+      onActivationSuccess();
+    } catch (err: any) {
+      setError((prev) => ({
+        ...prev,
+        [deviceId]: err.message || "Activation failed. Please try again.",
+      }));
     } finally {
       setLoading((prev) => ({ ...prev, [deviceId]: false }));
     }
@@ -369,27 +347,23 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
   };
 
   const handleBack = (): void => {
-    console.log("Navigate back");
+    // Navigate back logic
   };
 
-    const percentage = calculateTimePercentage(subscription);
-              const color = getColor(percentage, subscription.status);
-              const daysRemaining = getDaysRemaining(subscription);
-              const maxDash = 785.4;
-              const offset = maxDash * (1 - percentage / 100);
-  
-              const { dashOffset } = useSpring({
-                dashOffset: offset,
-                from: { dashOffset: maxDash },
-                config: config.molasses,
-              });
-  
+  const percentage = calculateTimePercentage(subscription);
+  const color = getColor(percentage, subscription.status);
+  const daysRemaining = getDaysRemaining(subscription);
+  const maxDash = 785.4;
+  const offset = maxDash * (1 - percentage / 100);
+
+  const { dashOffset } = useSpring({
+    dashOffset: offset,
+    from: { dashOffset: maxDash },
+    config: config.molasses,
+  });
 
   return (
-    <div
-      
-      className="bg-white/90 backdrop-blur-md border border-white/20 rounded-lg shadow-sm"
-    >
+    <div className="bg-white/90 backdrop-blur-md border border-white/20 rounded-lg shadow-sm">
       <div className="p-4">
         {/* Show activation interface if in progress */}
         {showActivation[subscription._id] ? (
@@ -413,24 +387,44 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
               </button>
             </div>
 
-            {!isOnboarded[subscription._id] && qrCodes[subscription._id] && (
+            {/* QR Code Section */}
+            {!isOnboarded[subscription._id] && (
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-3">
                   Scan this QR code with your authenticator app:
                 </p>
-                <div className="flex justify-center mb-3">
-                  <Image
-                  width={32}
-                  height={32}
-                    src={qrCodes[subscription._id]}
-                    alt="TOTP QR Code"
-                    className="w-32 h-32 border rounded-lg"
-                  />
-                </div>
+
+                {qrCodes[subscription._id] ? (
+                  <div className="flex justify-center mb-3">
+                    <div className="p-4 bg-white rounded-lg border-2 border-gray-200">
+                      <Image
+                        width={192}
+                        height={192}
+                        src={qrCodes[subscription._id]}
+                        alt="TOTP QR Code"
+                        className="w-48 h-48"
+                        style={{ imageRendering: "pixelated" }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-center mb-3">
+                    <div className="p-4 bg-gray-100 rounded-lg border-2 border-gray-200">
+                      <div className="w-48 h-48 flex items-center justify-center text-gray-500">
+                        Loading QR Code...
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-xs text-gray-500">
+                  Compatible with Google Authenticator, Authy, and other TOTP
+                  apps
+                </p>
               </div>
             )}
 
-            <form onSubmit={(e) => handleTotpSubmit(e, subscription._id)}>
+            <form onSubmit={(e) => handleTotpSubmit(e, subscription._id, subscription.imei)}>
               <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   6-Digit Code from Authenticator App
@@ -473,7 +467,7 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
           </div>
         ) : (
           <>
-            {/* subscription Header */}
+            {/* Subscription Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-black mb-1">
@@ -584,7 +578,8 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
                 </div>
               )}
 
-              {(subscription.status === "PENDING" || subscription.status === "QUEUED") &&
+              {(subscription.status === "PENDING" ||
+                subscription.status === "QUEUED") &&
                 subscription.queuePosition && (
                   <div className="flex items-center gap-2 text-blue-600">
                     <Clock className="w-4 h-4" />
@@ -595,7 +590,7 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              {(subscription.status === "PENDING" || subscription.status === "QUEUED") && (
+              {subscription.status === "PENDING" && (
                 <button
                   onClick={() => handleActivateClick(subscription._id)}
                   disabled={loading[subscription._id]}
