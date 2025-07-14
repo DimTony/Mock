@@ -3,7 +3,7 @@
 import ProtectedRoute from "@/components/Guard";
 import ProfileDrawer from "@/components/Profiler";
 import { useAuthStore } from "@/store/authStore";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Shield,
   Smartphone,
@@ -27,6 +27,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Subscription } from "@/types/auth";
 import EncryptionCard from "@/components/EncryptionCard";
+import { toast, Toaster } from "sonner";
 
 const pi = Math.PI;
 const tau = 2 * pi;
@@ -41,8 +42,55 @@ const map = (
   return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
 };
 
-// TypeScript interfaces
+function useSubscriptions(user: any) {
+  const { retrieveUserData } = useAuthStore();
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  const fetchSubscriptions = useCallback(async () => {
+    try {
+      setLoading(true);
+      // const result = await fetch("/api/subscriptions");
+      const response = await retrieveUserData();
+
+      // console.log("(((999", response);
+
+      // const response = await result.json();
+
+
+      if (!response.success) {
+        throw new Error(
+          `Failed to fetch subscriptions: ${response.statusText}`
+        );
+      }
+
+      const data = response.data.subscriptions
+      setSubscriptions(data || []);
+    } catch (error) {
+      console.error("Error fetching subscriptions:", error);
+      toast.error("Failed to Load Subscriptions", {
+        description:
+          "Unable to retrieve your encryption subscriptions. Please refresh the page.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initialize subscriptions from user.subscriptions
+  useEffect(() => {
+    if (user?.subscriptions) {
+      setSubscriptions(user.subscriptions);
+      setLoading(false);
+    } else {
+      fetchSubscriptions();
+    }
+  }, [user?.subscriptions, fetchSubscriptions]);
+
+  return { subscriptions, loading, refetch: fetchSubscriptions };
+}
+
+// TypeScript interfaces
 interface ActivationState {
   [key: string]: boolean;
 }
@@ -87,13 +135,13 @@ const PLAN_DURATIONS: Record<string, number> = {
   "full-suite-premium": 90,
 };
 
-
-
-
 const ManageSubscriptions = () => {
   const { user, logout, isLoading, checkAuth } = useAuthStore();
+  const { subscriptions, loading, refetch } = useSubscriptions(user);
   const router = useRouter();
-  const [selectedDevice, setSelectedDevice] = useState<Subscription | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState<Subscription | null>(
+    null
+  );
   const [showKeyDetails, setShowKeyDetails] = useState<{
     [deviceId: string]: boolean;
   }>({});
@@ -104,16 +152,10 @@ const ManageSubscriptions = () => {
   const [isOnboarded, setIsOnboarded] = useState<OnboardedState>({});
   const [qrCodes, setQrCodes] = useState<QrCodeState>({});
   const [totpCodes, setTotpCodes] = useState<TotpState>({});
-  const [loading, setLoading] = useState<LoadingState>({});
   const [error, setError] = useState<ErrorState>({});
 
-  const [devices, setDevices] = useState<Subscription[]>([]);
-
-  useEffect(() => {
-    if (user?.subscriptions) {
-      setDevices(user.subscriptions);
-    }
-  }, [user?.subscriptions]);
+  // Use subscriptions from the hook as the primary data source
+  const devices = subscriptions;
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -153,15 +195,9 @@ const ManageSubscriptions = () => {
 
   const handleRefreshEncryption = async (deviceId: string) => {
     setIsRefreshing(true);
-    // Simulate API call
-    setTimeout(() => {
-      setDevices(
-        devices.map((device) =>
-          device._id === deviceId
-            ? { ...device, lastEncrypted: new Date().toISOString() }
-            : device
-        )
-      );
+    // Simulate API call and refresh the data
+    setTimeout(async () => {
+      await refetch(); // Refresh the subscriptions data
       setIsRefreshing(false);
     }, 2000);
   };
@@ -184,13 +220,25 @@ const ManageSubscriptions = () => {
 
   const getDeviceCount = (status: string) => {
     if (status === "all") return devices.length;
-    return devices.filter((d) => d.status?.toLowerCase() === status)
-      .length;
+    return devices.filter((d) => d.status?.toLowerCase() === status).length;
   };
 
   const handleBack = () => {
     router.back();
   };
+
+  const handleActivationSuccess = useCallback(async () => {
+    // Refresh subscriptions data
+    await refetch();
+
+    // Also refresh auth state to ensure user data is updated
+    await checkAuth();
+
+    // Show success message
+    toast.success("Device Activated", {
+      description: "Your device has been successfully activated!",
+    });
+  }, [refetch, checkAuth]);
 
   if (!user) return null;
 
@@ -271,19 +319,29 @@ const ManageSubscriptions = () => {
             </div>
           </div>
 
+          {/* Loading State */}
+          {loading && (
+            <div className="text-center py-12">
+              <RefreshCw className="w-8 h-8 text-blue-600 mx-auto mb-4 animate-spin" />
+              <p className="text-gray-600">Loading subscriptions...</p>
+            </div>
+          )}
+
           {/* Devices List */}
-          <div className="space-y-3">
-            {filteredDevices.map((device) => (
-             <EncryptionCard
-             key={device._id}
-             subscription={device}
-             onActivationSuccess={() => {}}
-           />
-            ))}
-          </div>
+          {!loading && (
+            <div className="space-y-3">
+              {filteredDevices.map((device) => (
+                <EncryptionCard
+                  key={device._id}
+                  subscription={device}
+                  onActivationSuccess={handleActivationSuccess}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Empty State */}
-          {filteredDevices.length === 0 && (
+          {!loading && filteredDevices.length === 0 && (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-8 h-8 text-gray-400" />
@@ -306,9 +364,13 @@ const ManageSubscriptions = () => {
           )}
         </div>
 
-        <button className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center">
-          <Plus className="w-6 h-6" />
-        </button>
+        <Link href="/auth/register">
+          <button className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center">
+            <Plus className="w-6 h-6" />
+          </button>
+        </Link>
+
+        <Toaster position="top-center" />
       </div>
     </ProtectedRoute>
   );

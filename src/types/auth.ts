@@ -134,8 +134,12 @@ export interface AuthState {
   logout: () => void;
   checkAuth: () => Promise<void>;
   fetchUserData: () => Promise<void>; // Add this new method
+  retrieveUserData: () => Promise<any>;
   checkOnboarding: (imei: string) => Promise<any>;
   setupDevice: (imei: string, deviceName: string) => Promise<any>;
-  activateSubscription: (subscriptionId: string, totpCode: string, imei: string) => Promise<any>;
-
+  activateSubscription: (
+    subscriptionId: string,
+    totpCode: string,
+    imei: string
+  ) => Promise<any>;
 }

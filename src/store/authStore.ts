@@ -130,6 +130,41 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      retrieveUserData: async () => {
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/user", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          const userResult = await response.json();
+
+          if (!userResult.success) {
+            throw new Error("User Profile retrieval failed");
+          }
+
+          // set({
+          //   user: userResult?.data,
+          //   isLoading: false,
+          // });
+
+          return userResult
+        } catch (error) {
+          console.error("Retrieving user data failed:", error);
+          set({ user: null, token: null, isLoading: false });
+          throw error;
+        }
+      },
+
       checkAuth: async () => {
         const { token, isCheckingAuth } = get();
 
@@ -270,7 +305,7 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await fetch(`/api/subscription/activate`, {
+          const response = await fetch(`/api/subscriptions/activate`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

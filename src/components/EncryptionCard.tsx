@@ -320,12 +320,26 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
         )
       );
 
+      console.log('LLL', devices)
+
       // Clear form and close activation interface
       setShowActivation((prev) => ({ ...prev, [deviceId]: false }));
       setTotpCodes((prev) => ({ ...prev, [deviceId]: "" }));
 
+      console.log("AAA", showActivation);
+      console.log("TTTT", totpCodes);
+
+
       // Call success callback
       onActivationSuccess();
+      // setShowActivation(false);
+      // setTotpCode("");
+    // } else {
+    //   toast.error("Activation Failed", {
+    //     description:
+    //       data.error || "Please check your TOTP code and try again",
+    //   });
+    // }
     } catch (err: any) {
       setError((prev) => ({
         ...prev,
@@ -590,7 +604,7 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
 
             {/* Action Buttons */}
             <div className="flex gap-2">
-              {subscription.status === "PENDING" && (
+              {subscription.status === "QUEUED" && (
                 <button
                   onClick={() => handleActivateClick(subscription._id)}
                   disabled={loading[subscription._id]}
@@ -606,7 +620,7 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
                 <>
                   <button className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
                     <RefreshCw className="w-4 h-4 inline mr-2" />
-                    Refresh
+                    Renew Now
                   </button>
                   <button className="p-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
                     <Settings className="w-4 h-4" />

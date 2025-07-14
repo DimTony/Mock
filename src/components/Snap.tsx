@@ -390,7 +390,7 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
                 </div> */}
 
                 {/* Progress Section */}
-                <div className="mb-4">
+              {item.status !== 'PENDING' &&  <div className="mb-4">
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                     <div
@@ -422,7 +422,7 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
                       )}
                     </span>
                   </div>
-                </div>
+                </div>}
 
                 {/* <p className="text-sm text-gray-600 text-center">
                   {item.description}
@@ -430,9 +430,9 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
               </div>
 
               {/* Action Button */}
-              <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 transition-colors text-sm font-medium">
+              {item.status !== 'PENDING' &&  <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 transition-colors text-sm font-medium">
                 {progress >= 100 ? "Renew Subscription" : "Pay Now"}
-              </button>
+              </button>}
             </div>
           );
         })}
