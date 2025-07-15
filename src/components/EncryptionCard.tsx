@@ -628,9 +628,9 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
                     <RefreshCw className="w-4 h-4 inline mr-2" />
                     Renew Now
                   </button>
-                  <button className="p-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
+                  {/* <button className="p-3 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
                     <Settings className="w-4 h-4" />
-                  </button>
+                  </button> */}
                 </>
               )}
 
