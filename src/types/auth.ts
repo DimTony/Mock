@@ -142,4 +142,10 @@ export interface AuthState {
     totpCode: string,
     imei: string
   ) => Promise<any>;
+  fetchOptionsById: (subscriptionId: string) => Promise<any>;
+  renewSubscription: (
+    subscriptionId: string,
+    newPlan: string,
+    paymentMethod: string
+  ) => Promise<any>;
 }

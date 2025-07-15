@@ -157,7 +157,7 @@ export const useAuthStore = create<AuthState>()(
           //   isLoading: false,
           // });
 
-          return userResult
+          return userResult;
         } catch (error) {
           console.error("Retrieving user data failed:", error);
           set({ user: null, token: null, isLoading: false });
@@ -337,6 +337,87 @@ export const useAuthStore = create<AuthState>()(
             success: false,
             error: "Failed to activate subscription",
           };
+        }
+      },
+
+      fetchOptionsById: async (subscriptionId: string) => {
+        // set({ isLoading: true });
+
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `/api/subscriptions/${subscriptionId}/options`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              // body: JSON.stringify({ imei }),
+            }
+          );
+
+          const result = await res.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Options fetch failed");
+          }
+
+          set({
+            isLoading: false,
+          });
+
+          return result;
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      renewSubscription: async (subscriptionId: string, newPlan: string,
+        paymentMethod: string) => {
+        // set({ isLoading: true });
+
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `/api/subscriptions/${subscriptionId}/renew`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ subscriptionId, newPlan, paymentMethod }),
+            }
+          );
+
+          const result = await res.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Subscription renewal ailed");
+          }
+
+          set({
+            isLoading: false,
+          });
+
+          return result;
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
         }
       },
     }),

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 const pi = Math.PI;
 const tau = 2 * pi;
@@ -126,6 +127,7 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
   subscription,
   onActivationSuccess,
 }) => {
+  const router = useRouter()
   const { checkOnboarding, setupDevice, activateSubscription } = useAuthStore();
   const [devices, setDevices] = useState<Subscription[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
@@ -349,6 +351,10 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
       setLoading((prev) => ({ ...prev, [deviceId]: false }));
     }
   };
+
+  const handleRenew = async () => {
+
+  }
 
   const filteredDevices = devices.filter((device) => {
     if (activeTab === "all") return true;
@@ -618,7 +624,7 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
 
               {subscription.status === "ACTIVE" && (
                 <>
-                  <button className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                  <button onClick={() => router.push(`/bitdefender/renew/${subscription._id}`)} className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
                     <RefreshCw className="w-4 h-4 inline mr-2" />
                     Renew Now
                   </button>
