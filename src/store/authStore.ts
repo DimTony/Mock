@@ -380,6 +380,50 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      checkEncryption: async (ip: string) => {
+        // set({ isLoading: true });
+
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `/api/device/check/encryption`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ ip }),
+            }
+          );
+
+          console.log("RESSSS:", res);
+
+          const result = await res.json();
+
+
+
+          if (!result.success) {
+            throw new Error(result.error || "IP check fetch failed");
+          }
+
+          set({
+            isLoading: false,
+          });
+
+          return result;
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
       renewSubscription: async (
         subscriptionId: string,
         newPlan: string,
@@ -542,8 +586,6 @@ export const useAuthStore = create<AuthState>()(
             },
             body: formData,
           });
-
-          
 
           const result = await res.json();
 

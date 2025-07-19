@@ -10,6 +10,9 @@ export async function POST(request: NextRequest) {
 
   const { ip } = await request.json();
 
+  // console.log("IPPPPPPP", ip);
+
+
   try {
     // Replace with your actual API call
     const response = await fetch(
@@ -26,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     const result = await response.json();
 
-    console.log("IPCHECK Result:", result);
+    console.log("IP CHECK Result:", result);
 
     if (!result.success) {
       // Return the actual error message from the backend
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
     // Don't call response.json() again - use the result we already have
     return NextResponse.json(result);
   } catch (error: any) {
-    console.error("IPCHeck API Error:", error);
+    console.error("ipCheck API Error:", error);
     return NextResponse.json(
       {
         success: false,

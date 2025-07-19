@@ -157,6 +157,7 @@ export interface AuthState {
     imei: string
   ) => Promise<any>;
   fetchOptionsById: (subscriptionId: string) => Promise<any>;
+  checkEncryption: (ip: string) => Promise<any>;
   renewSubscription: (
     subscriptionId: string,
     newPlan: string,

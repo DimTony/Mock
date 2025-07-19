@@ -16,66 +16,8 @@ import ProtectedRoute from "@/components/Guard";
 import ProfileDrawer from "@/components/Profiler";
 import { toast, Toaster } from "sonner";
 import { NewDeviceData } from "@/types/auth";
+import { usePricing } from "@/hooks/usePricing";
 
-const subscriptionPlans = [
-  {
-    id: "mobile-v4-basic",
-    name: "Mobile Only v4 - Basic",
-    price: "$9.99/month",
-    duration: "30 days",
-    features: [
-      "Basic mobile encryption",
-      "30 day duration",
-      "Standard support",
-    ],
-  },
-  {
-    id: "mobile-v4-premium",
-    name: "Mobile Only v4 - Premium",
-    price: "$19.99/month",
-    duration: "60 days",
-    features: [
-      "Premium mobile encryption",
-      "60 day duration",
-      "Priority support",
-    ],
-  },
-  {
-    id: "mobile-v4-enterprise",
-    name: "Mobile Only v4 - Enterprise",
-    price: "$49.99/month",
-    duration: "90 days",
-    features: ["Enterprise encryption", "90 day duration", "24/7 support"],
-  },
-  {
-    id: "mobile-v5-basic",
-    name: "Mobile Only v5 - Basic",
-    price: "$49.99/month",
-    duration: "30 days",
-    features: ["v5 Mobile encryption", "30 day duration", "Enhanced security"],
-  },
-  {
-    id: "mobile-v5-premium",
-    name: "Mobile Only v5 - Premium",
-    price: "$69.99/month",
-    duration: "60 days",
-    features: ["v5 Premium encryption", "60 day duration", "Advanced features"],
-  },
-  {
-    id: "full-suite-basic",
-    name: "Full Suite - Basic",
-    price: "$79.99/month",
-    duration: "60 days",
-    features: ["v4 Full Suite", "60 day duration", "All platforms"],
-  },
-  {
-    id: "full-suite-premium",
-    name: "Full Suite - Premium",
-    price: "$99.99/month",
-    duration: "90 days",
-    features: ["v5 Full Suite", "90 day duration", "Premium features"],
-  },
-];
 
 export default function AddDevicePage() {
   const router = useRouter();
@@ -90,6 +32,16 @@ export default function AddDevicePage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const { allPlans, formatPrice } = usePricing();
+
+  // Remove the hardcoded subscriptionPlans array and replace with:
+  const subscriptionPlans = allPlans.map((plan) => ({
+    id: plan.id,
+    name: plan.name,
+    price: formatPrice(plan.price),
+    duration: plan.durationText,
+    features: plan.features.filter((f) => f.included).map((f) => f.text),
+  }));
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);

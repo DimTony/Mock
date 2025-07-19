@@ -3,67 +3,11 @@ import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { RegisterData } from "@/types/auth";
+import { usePricing } from "@/hooks/usePricing";
 
 interface AuthFormProps {
   mode: "login" | "register";
 }
-
-const subscriptionPlans = [
-  {
-    id: "mobile-v4-basic",
-    name: "Mobile Only v4 - Basic",
-    price: "$9.99/month",
-    features: [
-      "Basic mobile encryption",
-      "30 day duration",
-    ],
-  },
-  {
-    id: "mobile-v4-premium",
-    name: "Mobile Only v4 - Premium",
-    price: "$19.99/month",
-    features: [
-      "Premium mobile encryption",
-      "60 day duration",
-    ],
-  },
-  {
-    id: "mobile-v4-enterprise",
-    name: "Mobile Only v4 - Enterprise",
-    price: "$49.99/month",
-    features: [
-      "Mobile Only",
-      "90 day duration",
-    ],
-  },
-  {
-    id: "mobile-v5-basic",
-    name: "Mobile Only v5 - Basic",
-    price: "$49.99/month",
-    features: [
-      "v5 Mobile Only",
-      "60 day duration",
-    ],
-  },
-  {
-    id: "full-suite-basic",
-    name: "Full Suite - Basic",
-    price: "$49.99/month",
-    features: [
-      "v4 Full Suite",
-      "60 day duration",
-    ],
-  },
-  {
-    id: "full-suite-premium",
-    name: "Full Suite - Premium",
-    price: "$49.99/month",
-    features: [
-      "v5 Full Suite",
-      "90 day duration",
-    ],
-  },
-];
 
 export default function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState("");
@@ -88,6 +32,15 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   const { login, register, isLoading } = useAuthStore();
   const router = useRouter();
+  const { allPlans, formatPrice } = usePricing();
+
+  // Remove the hardcoded subscriptionPlans array and replace with:
+  const subscriptionPlans = allPlans.map((plan) => ({
+    id: plan.id,
+    name: plan.name,
+    price: formatPrice(plan.price),
+    features: plan.features.filter((f) => f.included).map((f) => f.text),
+  }));
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);

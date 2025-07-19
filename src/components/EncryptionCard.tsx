@@ -18,6 +18,7 @@ import {
 import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
+import { getPlanDisplayName } from "@/config/pricing";
 
 const pi = Math.PI;
 const tau = 2 * pi;
@@ -75,25 +76,6 @@ interface OnboardedState {
   [key: string]: boolean;
 }
 
-const SUBSCRIPTION_TYPES: Record<string, string> = {
-  "mobile-v4-basic": "Mobile Only v4 - Basic (30 days)",
-  "mobile-v4-premium": "Mobile Only v4 - Premium (60 days)",
-  "mobile-v4-enterprise": "Mobile Only v4 - Enterprise (90 days)",
-  "mobile-v5-basic": "Mobile Only v5 - Basic (30 days)",
-  "mobile-v5-premium": "Mobile Only v5 - Premium (60 days)",
-  "full-suite-basic": "Full Suite - Basic (60 days)",
-  "full-suite-premium": "Full Suite - Premium (90 days)",
-};
-
-const PLAN_DURATIONS: Record<string, number> = {
-  "mobile-v4-basic": 30,
-  "mobile-v4-premium": 60,
-  "mobile-v4-enterprise": 90,
-  "mobile-v5-basic": 30,
-  "mobile-v5-premium": 60,
-  "full-suite-basic": 60,
-  "full-suite-premium": 90,
-};
 
 // Simple shield icon component
 const SecureIcon: React.FC<{ size?: number; color?: string }> = ({
@@ -217,8 +199,18 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
   };
 
   const getPlanDuration = (plan: string): number => {
-    return PLAN_DURATIONS[plan] || 30;
+    return getSubscriptionDuration(plan) || 30;
   };
+
+  const getSubscriptionDisplayName = (plan: string): string => {
+    return getPlanDisplayName(plan);
+  };
+
+  const getSubscriptionDuration = (plan: string): number => {
+    return getPlanDuration(plan);
+  };
+
+  
 
   // Activation logic
   const handleActivateClick = async (deviceId: string): Promise<void> => {
@@ -444,7 +436,11 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
               </div>
             )}
 
-            <form onSubmit={(e) => handleTotpSubmit(e, subscription._id, subscription.imei)}>
+            <form
+              onSubmit={(e) =>
+                handleTotpSubmit(e, subscription._id, subscription.imei)
+              }
+            >
               <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   6-Digit Code from Authenticator App
@@ -494,7 +490,8 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
                   {subscription.deviceName}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  {SUBSCRIPTION_TYPES[subscription.plan] || subscription.plan}
+                  {getSubscriptionDisplayName(subscription.plan) ||
+                    subscription.plan}
                 </p>
                 <p className="text-base font-bold text-gray-900 mt-1">
                   ${subscription.price}/month
@@ -624,7 +621,12 @@ const EncryptionCard: React.FC<EncryptionCardProps> = ({
 
               {subscription.status === "ACTIVE" && (
                 <>
-                  <button onClick={() => router.push(`/bitdefender/renew/${subscription._id}`)} className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                  <button
+                    onClick={() =>
+                      router.push(`/bitdefender/renew/${subscription._id}`)
+                    }
+                    className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  >
                     <RefreshCw className="w-4 h-4 inline mr-2" />
                     Renew Now
                   </button>

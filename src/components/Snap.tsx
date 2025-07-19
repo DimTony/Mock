@@ -1,3 +1,4 @@
+import { getPlanDisplayName, getPlanDuration } from "@/config/pricing";
 import { Subscription, User } from "@/types/auth";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -256,75 +257,16 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
     }
   };
 
-  const getPlanDuration = (plan: string): number => {
-    switch (plan.toLowerCase()) {
-      case "basic_monthly":
-      case "premium_monthly":
-      case "netflix_monthly":
-      case "showmax_monthly":
-        return 30;
-
-      case "extended_45days":
-        return 45;
-
-      case "extended_60days":
-        return 60;
-
-      case "basic_quarterly":
-      case "premium_quarterly":
-        return 90;
-
-      case "basic_yearly":
-      case "premium_yearly":
-        return 365;
-
-      default:
-        return 30; // Default duration
-    }
+ 
+  const getPlanDisplayNameLocal = (plan: string): string => {
+    return getPlanDisplayName(plan);
   };
 
-  const PLAN_DETAILS: Record<string, PlanDetails> = {
-    "mobile-v4-basic": {
-      duration: 30,
-      displayName: "Mobile Only v4 - Basic",
-      category: "basic",
-      price: 124999, // $1,249.99
-    },
-    "mobile-v4-premium": {
-      duration: 60,
-      displayName: "Mobile Only v4 - Premium",
-      category: "premium",
-      price: 280000, // $2,800.00
-    },
-    "mobile-v4-enterprise": {
-      duration: 90,
-      displayName: "Mobile Only v4 - Enterprise",
-      category: "enterprise",
-      price: 574999, // $5,749.99
-    },
-    "mobile-v5-basic": {
-      duration: 60,
-      displayName: "Mobile Only v5 - Basic",
-      category: "basic",
-      price: 340000, // $3,400.00
-    },
-    "full-suite-basic": {
-      duration: 60,
-      displayName: "Full Suite - Basic",
-      category: "basic",
-      price: 480000, // $4,800.00
-    },
-    "full-suite-premium": {
-      duration: 90,
-      displayName: "Full Suite - Premium",
-      category: "premium",
-      price: 1214999, // $12,149.99
-    },
+  const getPlanDurationLocal = (plan: string): number => {
+    return getPlanDuration(plan);
   };
 
-  const getPlanDisplayName = (plan: string): string => {
-    return PLAN_DETAILS[plan]?.displayName.toString() || plan.toString();
-  };
+
 
   return (
     <div className="w-full max-w-6xl mx-auto py-4">
@@ -336,8 +278,8 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
         }}
       >
         {subscriptions.map((item) => {
-          const durationDays = getPlanDuration(item.plan);
-          const title = getPlanDisplayName(item.plan);
+          const durationDays = getPlanDurationLocal(item.plan);
+          const title = getPlanDisplayNameLocal(item.plan);
           const progress = calculateProgress(item.createdAt, durationDays);
           const daysUsed = getDaysUsed(item.createdAt);
 
