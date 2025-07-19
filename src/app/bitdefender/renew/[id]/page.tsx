@@ -6,6 +6,8 @@ import { useParams, useRouter } from "next/navigation";
 import Lottie from "lottie-react";
 import loginAnimation from "../../../../../public/animations/loadthree.json";
 import { useAuthStore } from "@/store/authStore";
+import { ChevronLeft } from "lucide-react";
+import ProfileDrawer from "@/components/Profiler";
 
 // Lightweight interfaces - only essential fields
 interface CurrentSubscription {
@@ -90,8 +92,8 @@ const formatPlanName = (plan: string): string => {
 
 const Renew = () => {
   const params = useParams();
-  const router = useRouter();
-  const { fetchOptionsById, renewSubscription } = useAuthStore();
+  const router = useRouter();  
+  const { fetchOptionsById, renewSubscription, user, logout } = useAuthStore();
 
   const subscriptionId = params.id as string;
 
@@ -107,6 +109,7 @@ const Renew = () => {
   );
   const [error, setError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
 
   // Memoized selected option to avoid recalculation
   const selectedOption = useMemo(
@@ -181,7 +184,7 @@ const Renew = () => {
         "ADMIN_APPROVAL"
       );
 
-      console.log("rrrRRRRRRR", renewedResponse);
+      // console.log("rrrRRRRRRR", renewedResponse);
 
       if (!renewedResponse.success) {
         // const errorData = await renewedResponse.json();
@@ -198,9 +201,56 @@ const Renew = () => {
     }
   }, [selectedPlan, subscriptionId]);
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+
+    // Validate file types
+    const validTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "application/pdf",
+    ];
+    const invalidFiles = selectedFiles.filter(
+      (file) => !validTypes.includes(file.type)
+    );
+
+    if (invalidFiles.length > 0) {
+      setError("Only JPG, PNG, and PDF files are allowed");
+      return;
+    }
+
+    // Validate file sizes (10MB each)
+    const oversizedFiles = selectedFiles.filter(
+      (file) => file.size > 10 * 1024 * 1024
+    );
+    if (oversizedFiles.length > 0) {
+      setError("Each file must be less than 10MB");
+      return;
+    }
+
+    // Validate total number of files
+    const totalFiles = files.length + selectedFiles.length;
+    if (totalFiles > 10) {
+      setError("Maximum 10 files allowed");
+      return;
+    }
+
+    setFiles((prev) => [...prev, ...selectedFiles]);
+    setError("");
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   useEffect(() => {
     loadRenewalOptions();
   }, [loadRenewalOptions]);
+
+  const handleBack = () => {
+    router.back()
+  }
 
   // Loading state
   if (isLoading) {
@@ -252,7 +302,6 @@ const Renew = () => {
   if (renewalResult) {
     return (
       <>
- 
         <div className="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto my-4">
@@ -323,34 +372,23 @@ const Renew = () => {
     );
   }
 
+  if (!user) return null
+
   // Main renewal interface
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div className="flex justify-between items-center gap-3 flex-shrink-0 mb-4">
+          <div className="flex gap-4 items-center">
+            <ChevronLeft onClick={handleBack} className="cursor-pointer" />
+            <span
+              className="text-[1rem] text-[#003883]"
+              style={{ fontFamily: "Lobster" }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back
-          </button>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Renew Subscription
-          </h1>
+              Renew Encryptions
+            </span>
+          </div>
+          <ProfileDrawer user={user} onLogout={logout} />
         </div>
 
         {/* Error banner */}
@@ -507,6 +545,124 @@ const Renew = () => {
                 })}
               </div>
 
+              <div className="space-y-4">
+                {/* <div className="flex items-center space-x-2">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Upload Documents
+            </h3>
+            <span className="text-red-500 text-sm font-medium">*Required</span>
+          </div> */}
+
+                {/* Upload Area */}
+                <div
+                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                    files.length === 0
+                      ? "border-red-300 bg-red-50"
+                      : "border-gray-300 bg-gray-50"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    multiple
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label htmlFor="file-upload" className="cursor-pointer block">
+                    <div className="space-y-2">
+                      <div className="text-4xl">📁</div>
+                      <div className="text-lg font-medium text-gray-700">
+                        {files.length === 0
+                          ? "Upload Required Documents"
+                          : "Upload More Documents"}
+                      </div>
+                      <p className="text-sm text-gray-600">
+                        Click to browse or drag and drop files here
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        JPG, PNG, PDF files only • Max 10MB each • Up to 10
+                        files
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* File List */}
+                {files.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-gray-700">
+                        Uploaded Files ({files.length}/10)
+                      </h4>
+                      <div className="text-sm text-green-600 font-medium">
+                        ✓ Requirement met
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {files.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg shadow-sm"
+                        >
+                          <div className="flex items-center space-x-3 flex-1 min-w-0">
+                            {/* <span className="text-xl">{getFileIcon(file.type)}</span> */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {file.name}
+                              </p>
+                              {/* <p className="text-xs text-gray-500">
+                          {formatFileSize(file.size)}
+                        </p> */}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded-full transition-colors"
+                            title="Remove file"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Requirements Notice */}
+                {files.length === 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="text-amber-500 text-lg">⚠️</div>
+                      <div>
+                        <h4 className="font-medium text-amber-800">
+                          Documents Required
+                        </h4>
+                        <p className="text-sm text-amber-700 mt-1">
+                          You must upload at least one encryption card
+                          equivalent to the select plan.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Selected plan summary */}
               {selectedOption && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -539,11 +695,17 @@ const Renew = () => {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowConfirm(true)}
-                      disabled={isRenewing}
-                      className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
+                      disabled={isRenewing || files.length === 0}
+                      className={`flex-1 py-2 px-4 rounded-lg transition-colors ${
+                        isRenewing || files.length === 0
+                          ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }`}
                     >
                       {isRenewing
                         ? "Processing..."
+                        : files.length === 0
+                        ? "Upload Documents to Continue"
                         : `Renew for $${selectedOption.price}`}
                     </button>
                     <button

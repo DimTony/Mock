@@ -124,6 +124,20 @@ export interface RegisterData {
   files: File[];
 }
 
+export interface NewDeviceData {
+  deviceName: string;
+  imei: string;
+  plan: string;
+  phoneNumber: string;
+  files: File[];
+}
+
+export interface NewSubscriptionData {
+  imei: string;
+  plan: string;
+  files: File[];
+}
+
 export interface AuthState {
   user: User | null;
   token: string | null;
@@ -148,4 +162,7 @@ export interface AuthState {
     newPlan: string,
     paymentMethod: string
   ) => Promise<any>;
+  searchDevice: (debouncedSearchQuery: any) => Promise<any>;
+  addNewDevice: (data: NewDeviceData) => Promise<any>;
+  addSubscription: (data: NewSubscriptionData) => Promise<any>;
 }

@@ -1,31 +1,23 @@
 "use client";
-
 import ProtectedRoute from "@/components/Guard";
+import type React from "react";
+
 import ProfileDrawer from "@/components/Profiler";
 import { useAuthStore } from "@/store/authStore";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
   Shield,
   Smartphone,
-  Key,
   Lock,
-  Unlock,
   RefreshCw,
-  Settings,
   AlertTriangle,
   CheckCircle,
   Clock,
   Plus,
-  MoreVertical,
-  Eye,
-  EyeOff,
-  ChevronRight,
-  ArrowLeft,
   ChevronLeft,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Subscription } from "@/types/auth";
+import type { Subscription } from "@/types/auth";
 import EncryptionCard from "@/components/EncryptionCard";
 import { toast, Toaster } from "sonner";
 
@@ -50,21 +42,13 @@ function useSubscriptions(user: any) {
   const fetchSubscriptions = useCallback(async () => {
     try {
       setLoading(true);
-      // const result = await fetch("/api/subscriptions");
       const response = await retrieveUserData();
-
-      // console.log("(((999", response);
-
-      // const response = await result.json();
-
-
       if (!response.success) {
         throw new Error(
           `Failed to fetch subscriptions: ${response.statusText}`
         );
       }
-
-      const data = response.data.subscriptions
+      const data = response.data.subscriptions;
       setSubscriptions(data || []);
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
@@ -77,7 +61,6 @@ function useSubscriptions(user: any) {
     }
   }, []);
 
-  // Initialize subscriptions from user.subscriptions
   useEffect(() => {
     if (user?.subscriptions) {
       setSubscriptions(user.subscriptions);
@@ -89,6 +72,70 @@ function useSubscriptions(user: any) {
 
   return { subscriptions, loading, refetch: fetchSubscriptions };
 }
+
+// Custom Popover Component
+interface PopoverProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  trigger: React.ReactNode;
+}
+
+const CustomPopover: React.FC<PopoverProps> = ({
+  isOpen,
+  onClose,
+  children,
+  trigger,
+}) => {
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        popoverRef.current &&
+        triggerRef.current &&
+        !popoverRef.current.contains(event.target as Node) &&
+        !triggerRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  return (
+    <div className="relative">
+      <div ref={triggerRef}>{trigger}</div>
+      {isOpen && (
+        <div
+          ref={popoverRef}
+          className="absolute bottom-full right-0 mb-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-in fade-in-0 zoom-in-95 duration-200"
+          style={{
+            transformOrigin: "bottom right",
+          }}
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // TypeScript interfaces
 interface ActivationState {
@@ -147,12 +194,12 @@ const ManageSubscriptions = () => {
   }>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
-
   const [showActivation, setShowActivation] = useState<ActivationState>({});
   const [isOnboarded, setIsOnboarded] = useState<OnboardedState>({});
   const [qrCodes, setQrCodes] = useState<QrCodeState>({});
   const [totpCodes, setTotpCodes] = useState<TotpState>({});
   const [error, setError] = useState<ErrorState>({});
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   // Use subscriptions from the hook as the primary data source
   const devices = subscriptions;
@@ -195,9 +242,8 @@ const ManageSubscriptions = () => {
 
   const handleRefreshEncryption = async (deviceId: string) => {
     setIsRefreshing(true);
-    // Simulate API call and refresh the data
     setTimeout(async () => {
-      await refetch(); // Refresh the subscriptions data
+      await refetch();
       setIsRefreshing(false);
     }, 2000);
   };
@@ -228,17 +274,32 @@ const ManageSubscriptions = () => {
   };
 
   const handleActivationSuccess = useCallback(async () => {
-    // Refresh subscriptions data
     await refetch();
-
-    // Also refresh auth state to ensure user data is updated
     await checkAuth();
-
-    // Show success message
     toast.success("Device Activated", {
       description: "Your device has been successfully activated!",
     });
   }, [refetch, checkAuth]);
+
+  const handleAddSubscription = () => {
+    setIsPopoverOpen(false);
+    router.push("/bitdefender/subscription");
+    toast.info("Add Subscription", {
+      description: "Redirecting to add subscription to existing device...",
+    });
+  };
+
+  const handleAddDevice = () => {
+    setIsPopoverOpen(false);
+    router.push("/bitdefender/onboard");
+    toast.info("Add Device", {
+      description: "Redirecting to add new device...",
+    });
+  };
+
+  const togglePopover = () => {
+    setIsPopoverOpen(!isPopoverOpen);
+  };
 
   if (!user) return null;
 
@@ -246,7 +307,6 @@ const ManageSubscriptions = () => {
     <ProtectedRoute>
       <div className="min-h-screen px-4 py-4 bg-cover bg-center relative flex flex-col overflow-y-auto">
         <div className="back-image" />
-
         <div className="flex justify-between items-center gap-3 flex-shrink-0 mb-4">
           <div className="flex gap-4 items-center">
             <ChevronLeft onClick={handleBack} className="cursor-pointer" />
@@ -257,7 +317,6 @@ const ManageSubscriptions = () => {
               Manage Encryptions
             </span>
           </div>
-
           <ProfileDrawer user={user} onLogout={logout} />
         </div>
 
@@ -273,7 +332,6 @@ const ManageSubscriptions = () => {
               </p>
               <p className="text-xs text-gray-600">Active</p>
             </div>
-
             <div className="bg-white rounded-lg p-3 text-center shadow-sm">
               <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-full mx-auto mb-2">
                 <AlertTriangle className="w-4 h-4 text-red-600" />
@@ -283,7 +341,6 @@ const ManageSubscriptions = () => {
               </p>
               <p className="text-xs text-gray-600">Expired</p>
             </div>
-
             <div className="bg-white rounded-lg p-3 text-center shadow-sm">
               <div className="flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-full mx-auto mb-2">
                 <Clock className="w-4 h-4 text-yellow-600" />
@@ -355,7 +412,10 @@ const ManageSubscriptions = () => {
                   : `No ${activeTab} encryption devices found.`}
               </p>
               {activeTab === "all" && (
-                <button className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg text-sm font-medium">
+                <button
+                  onClick={handleAddDevice}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                >
                   <Plus className="w-4 h-4" />
                   Add Device
                 </button>
@@ -364,11 +424,61 @@ const ManageSubscriptions = () => {
           )}
         </div>
 
-        <Link href="/auth/register">
-          <button className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center">
-            <Plus className="w-6 h-6" />
-          </button>
-        </Link>
+        {/* Custom Floating Action Button with Popover */}
+        <div className="fixed bottom-6 right-6">
+          <CustomPopover
+            isOpen={isPopoverOpen}
+            onClose={() => setIsPopoverOpen(false)}
+            trigger={
+              <button
+                onClick={togglePopover}
+                className="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                <Plus
+                  className={`w-6 h-6 transition-transform duration-200 ${
+                    isPopoverOpen ? "rotate-45" : ""
+                  }`}
+                />
+              </button>
+            }
+          >
+            <div className="space-y-1">
+              <button
+                onClick={handleAddSubscription}
+                className="w-full flex items-center gap-3 px-3 py-3 text-sm text-left hover:bg-gray-50 transition-colors duration-150 first:rounded-t-lg"
+              >
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Plus className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">
+                    Add Subscription
+                  </div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    Add to existing device
+                  </div>
+                </div>
+              </button>
+
+              <div className="h-px bg-gray-100 mx-2" />
+
+              <button
+                onClick={handleAddDevice}
+                className="w-full flex items-center gap-3 px-3 py-3 text-sm text-left hover:bg-gray-50 transition-colors duration-150 last:rounded-b-lg"
+              >
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Smartphone className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-gray-900">Add Device</div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    Add device + subscription
+                  </div>
+                </div>
+              </button>
+            </div>
+          </CustomPopover>
+        </div>
 
         <Toaster position="top-center" />
       </div>

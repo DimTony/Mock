@@ -1,3 +1,4 @@
+// src/app/api/devices/add/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -7,19 +8,17 @@ export async function POST(request: NextRequest) {
   if (!token) {
     return NextResponse.json({ error: "Missing token" }, { status: 401 });
   }
-  
+
   try {
     const formData = await request.formData();
 
     // Extract all form data
-    const registrationData = {
-      username: formData.get("username"),
-      email: formData.get("email"),
-      password: formData.get("password"),
+    const deviceData = {
       deviceName: formData.get("deviceName"),
       imei: formData.get("imei"),
       phoneNumber: formData.get("phoneNumber"),
       plan: formData.get("plan"),
+
     };
 
     // Handle file uploads
@@ -31,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Send to your actual API
     const apiFormData = new FormData();
-    Object.entries(registrationData).forEach(([key, value]) => {
+    Object.entries(deviceData).forEach(([key, value]) => {
       if (value) apiFormData.append(key, value as string);
     });
 
@@ -39,48 +38,45 @@ export async function POST(request: NextRequest) {
       apiFormData.append(`files`, file);
     });
 
-    const response = await fetch(`${process.env.API_BASE_URL}/auth/create`, {
-      method: "POST",
-      body: apiFormData,
-    });
+    // The backend might use the same registration endpoint for adding devices
+    // You may need to adjust this based on your actual backend API
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/devices/add`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: apiFormData,
+      }
+    );
 
     const result = await response.json();
 
-    // console.log("REG API response", result);
+    console.log("ADD DEVICE API response", result);
 
     if (!response.ok) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            result?.message === "Failed to upload files to Cloudinary"
-              ? "Failed to upload"
-              : result?.message || "Registration failed",
+          error: result?.message || "Failed to add device",
         },
         { status: response.status }
       );
     }
 
-    // Handle successful registration that requires email verification
-    if (result.success && result.data?.requiresVerification) {
-      return NextResponse.json({
-        success: true,
-        message: result.message,
-        data: result.data,
-      });
-    }
-
-    // Handle normal successful registration (user logged in immediately)
+    // Handle successful device addition
     return NextResponse.json({
       success: true,
-      data: result,
+      message: result.message || "Device added successfully",
+      data: result.data,
     });
   } catch (error) {
-    console.error("Registration API Error:", error);
+    console.error("Add Device API Error:", error);
     return NextResponse.json(
       {
         success: false,
-        error: "Registration failed",
+        error: "Failed to add device",
       },
       { status: 500 }
     );

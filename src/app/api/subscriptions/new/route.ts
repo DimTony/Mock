@@ -1,24 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  const token = authHeader?.split(" ")[1];
-
-  if (!token) {
-    return NextResponse.json({ error: "Missing token" }, { status: 401 });
-  }
-  
   try {
+    const authHeader = request.headers.get("authorization");
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+      return NextResponse.json({ error: "Missing token" }, { status: 401 });
+    }
+
     const formData = await request.formData();
 
     // Extract all form data
     const registrationData = {
-      username: formData.get("username"),
-      email: formData.get("email"),
-      password: formData.get("password"),
-      deviceName: formData.get("deviceName"),
-      imei: formData.get("imei"),
-      phoneNumber: formData.get("phoneNumber"),
+      deviceId: formData.get("deviceId"),
       plan: formData.get("plan"),
     };
 
@@ -39,10 +34,17 @@ export async function POST(request: NextRequest) {
       apiFormData.append(`files`, file);
     });
 
-    const response = await fetch(`${process.env.API_BASE_URL}/auth/create`, {
-      method: "POST",
-      body: apiFormData,
-    });
+    const response = await fetch(
+      `${process.env.API_BASE_URL}/subscriptions/new`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: apiFormData,
+      }
+    );
 
     const result = await response.json();
 

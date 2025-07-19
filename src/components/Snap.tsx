@@ -1,4 +1,5 @@
 import { Subscription, User } from "@/types/auth";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 interface ProgressCardProps {
@@ -13,7 +14,7 @@ interface PlanDetails {
   duration: number;
   displayName: string;
   category: "basic" | "premium" | "enterprise" | "suite";
-  price: number
+  price: number;
 }
 
 export const ProgressCard: React.FC<ProgressCardProps> = ({
@@ -58,16 +59,18 @@ export const ProgressCard: React.FC<ProgressCardProps> = ({
   };
 
   // Get days remaining
-  const getDaysRemaining = (endDate: string): number => {
-    const now = new Date();
-    const end = new Date(endDate);
-    const diffTime = end.getTime() - now.getTime();
+  const getDaysRemaining = (subscriptionEndDate: string): number => {
+    if (!subscriptionEndDate) return 0;
+    const endDate = new Date(subscriptionEndDate);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return Math.max(0, diffDays);
   };
 
   const progress: number = calculateProgress(startDate, endDate);
   const daysRemaining: number = getDaysRemaining(endDate);
+
   const isCompleted: boolean = progress >= 100;
   const isNotStarted: boolean = progress === 0;
 
@@ -167,7 +170,7 @@ interface SnapCarouselProps {
 }
 
 const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
-
+  const router = useRouter();
   // Calculate progress percentage based on subscription duration
   const calculateProgress = (start: string, durationDays: number): number => {
     const now = new Date();
@@ -190,7 +193,7 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
   };
 
   // Get days remaining in subscription
-  const getDaysRemaining = (start: string, durationDays: number): number => {
+  const getDaysRemainingx = (start: string, durationDays: number): number => {
     const now = new Date();
     const startDate = new Date(start);
     const endDate = new Date(startDate);
@@ -199,6 +202,15 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
     const diffTime = endDate.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
+  };
+
+  const getDaysRemaining = (subscriptionEndDate: string): number => {
+    if (!subscriptionEndDate) return 0;
+    const endDate = new Date(subscriptionEndDate);
+    const today = new Date();
+    const diffTime = endDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
   };
 
   // Get days used in subscription
@@ -313,8 +325,6 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
   const getPlanDisplayName = (plan: string): string => {
     return PLAN_DETAILS[plan]?.displayName.toString() || plan.toString();
   };
-  
-  
 
   return (
     <div className="w-full max-w-6xl mx-auto py-4">
@@ -326,12 +336,18 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
         }}
       >
         {subscriptions.map((item) => {
-          
           const durationDays = getPlanDuration(item.plan);
           const title = getPlanDisplayName(item.plan);
           const progress = calculateProgress(item.createdAt, durationDays);
           const daysUsed = getDaysUsed(item.createdAt);
-          const daysRemaining = getDaysRemaining(item.createdAt, durationDays);
+
+          console.log('SSSS', item)
+
+          let daysRemaining = 0;
+          // const daysRemaining = getDaysRemaining(item.createdAt, durationDays);
+          if (item.endDate) {
+            daysRemaining = getDaysRemaining(item.endDate);
+          }
 
           const getEndDate = (
             startDate: string,
@@ -346,14 +362,14 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
           return (
             <div
               key={item._id}
-              className="min-w-90 flex-shrink-0 snap-start rounded-xl shadow-lg bg-white border border-gray-200 flex flex-col p-6 transition-transform hover:scale-105 cursor-pointer"
+              className={`min-w-90 flex-shrink-0 snap-start rounded-xl shadow-lg bg-white border border-gray-200 flex flex-col p-6 transition-transform hover:scale-105 cursor-pointer ${
+                item.status.toLowerCase() === "pending" ? "h-fit" : "h-full"
+              }`}
             >
               {/* Header */}
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">
-                    {title}
-                  </h3>
+                  <h3 className="text-lg font-bold text-gray-900">{title}</h3>
                   <p className="text-sm text-gray-600">IMEI: {item.imei}</p>
                 </div>
                 <span
@@ -366,15 +382,16 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
               </div>
 
               {/* Subscription Info */}
-              <div className="mb-4 flex-grow">
-                {/* <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
+              {daysRemaining !== 0 && (
+                <div className="mb-4 flex-grow">
+                  {/* <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
                   <span>Started: {formatDate(item.startDate)}</span>
                   <span className="bg-gray-100 px-2 py-1 rounded text-xs">
                     {item.duration} days
                   </span>
                 </div> */}
 
-                {/* <div className="flex justify-between items-center mb-3 text-sm text-gray-600">
+                  {/* <div className="flex justify-between items-center mb-3 text-sm text-gray-600">
                   <span>
                     Usage: {daysUsed} / {item.duration} days
                   </span>
@@ -389,50 +406,64 @@ const SnapCarousel: React.FC<SnapCarouselProps> = ({ subscriptions }) => {
                   </span>
                 </div> */}
 
-                {/* Progress Section */}
-              {item.status !== 'PENDING' &&  <div className="mb-4">
-                  {/* Progress Bar */}
-                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-300 ease-out ${getProgressColor(
-                        item.createdAt,
-                        durationDays
-                      )}`}
-                      style={{
-                        width: `${progress}%`,
-                      }}
-                    />
-                  </div>
+                  {/* Progress Section */}
+                  {item.status !== "PENDING" && (
+                    <div className="mb-4">
+                      {/* Progress Bar */}
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ease-out ${getProgressColor(
+                            item.createdAt,
+                            durationDays
+                          )}`}
+                          style={{
+                            width: `${progress}%`,
+                          }}
+                        />
+                      </div>
 
-                  <div className="flex justify-between items-center mb-2">
-                    <span
-                      className={`text-xs ${
-                        daysRemaining > 0 ? "text-gray-600 " : "text-red-600"
-                      }`}
-                    >
-                      {daysRemaining > 0
-                        ? `${daysRemaining} days left`
-                        : `${Math.abs(daysRemaining)} days overdue`}
-                    </span>
-                    <span className="text-xs text-gray-700">
-                      {/* {Math.round(progress)}% */}
-                      Due by:{" "}
-                      {formatDate(
-                        getEndDate(item.createdAt, durationDays).toISOString()
-                      )}
-                    </span>
-                  </div>
-                </div>}
+                      <div className="flex justify-between items-center mb-2">
+                        <span
+                          className={`text-xs ${
+                            daysRemaining > 0
+                              ? "text-gray-600 "
+                              : "text-red-600"
+                          }`}
+                        >
+                          {daysRemaining > 0
+                            ? `${daysRemaining} days left`
+                            : `${Math.abs(daysRemaining)} days overdue`}
+                        </span>
+                        <span className="text-xs text-gray-700">
+                          {/* {Math.round(progress)}% */}
+                          Due by:{" "}
+                          {formatDate(
+                            getEndDate(
+                              item.createdAt,
+                              // durationDays
+                              daysRemaining
+                            ).toISOString()
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
-                {/* <p className="text-sm text-gray-600 text-center">
+                  {/* <p className="text-sm text-gray-600 text-center">
                   {item.description}
                 </p> */}
-              </div>
+                </div>
+              )}
 
               {/* Action Button */}
-              {item.status !== 'PENDING' &&  <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 transition-colors text-sm font-medium">
-                {progress >= 100 ? "Renew Subscription" : "Pay Now"}
-              </button>}
+              {item.status !== "PENDING" && item.status !== "QUEUED" && (
+                <button
+                  onClick={() => router.push(`/bitdefender/renew/${item._id}`)}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  {progress >= 50 ? "Renew Encryption" : "Pay Now"}
+                </button>
+              )}
             </div>
           );
         })}

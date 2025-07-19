@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AuthState, User, RegisterData } from "@/types/auth";
+import { AuthState, User, RegisterData, NewDeviceData, NewSubscriptionData } from "@/types/auth";
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -380,8 +380,11 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      renewSubscription: async (subscriptionId: string, newPlan: string,
-        paymentMethod: string) => {
+      renewSubscription: async (
+        subscriptionId: string,
+        newPlan: string,
+        paymentMethod: string
+      ) => {
         // set({ isLoading: true });
 
         const { token, isCheckingAuth } = get();
@@ -408,6 +411,144 @@ export const useAuthStore = create<AuthState>()(
 
           if (!result.success) {
             throw new Error(result.error || "Subscription renewal ailed");
+          }
+
+          set({
+            isLoading: false,
+          });
+
+          return result;
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      searchDevice: async (debouncedSearchQuery: any) => {
+        // set({ isLoading: true });
+
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `/api/device/search?q=${encodeURIComponent(debouncedSearchQuery)}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              // body: JSON.stringify({ subscriptionId, newPlan, paymentMethod }),
+            }
+          );
+
+          const result = await res.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Search failed");
+          }
+
+          set({
+            isLoading: false,
+          });
+
+          return result;
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      addNewDevice: async (data: NewDeviceData) => {
+        // set({ isLoading: true });
+
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const formData = new FormData();
+          Object.entries(data).forEach(([key, value]) => {
+            if (key === "files") {
+              (value as File[]).forEach((file, index) => {
+                formData.append(`file_${index}`, file);
+              });
+            } else {
+              formData.append(key, value as string);
+            }
+          });
+
+          const res = await fetch("/api/device/add", {
+            method: "POST",
+            headers: {
+              // "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          const result = await res.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Adding New Device failed");
+          }
+
+          set({
+            isLoading: false,
+          });
+
+          return result;
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      addSubscription: async (data: NewSubscriptionData) => {
+        // set({ isLoading: true });
+
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          set({ isLoading: false });
+          return;
+        }
+
+        try {
+          const formData = new FormData();
+          Object.entries(data).forEach(([key, value]) => {
+            if (key === "files") {
+              (value as File[]).forEach((file, index) => {
+                formData.append(`file_${index}`, file);
+              });
+            } else {
+              formData.append(key, value as string);
+            }
+          });
+
+          const res = await fetch("/api/device/subscribe", {
+            method: "POST",
+            headers: {
+              // "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          });
+
+          
+
+          const result = await res.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Adding New Device failed");
           }
 
           set({
