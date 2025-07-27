@@ -18,6 +18,7 @@ import ProfileDrawer from "@/components/Profiler";
 import { Lock } from "lucide-react";
 import Link from "next/link";
 import ProtectedRoute from "@/components/Guard";
+import { getDeviceDueStatus } from "@/utils/helpers";
 
 function FeatureTile({
   title,
@@ -47,9 +48,14 @@ function FeatureTile({
 }
 
 export default function Dashboard() {
-  const { user, logout, isLoading } = useAuthStore();
+  const { user, logout, isLoading, checkActiveStatus } = useAuthStore();
   const router = useRouter();
   const [notifications, setNotifications] = useState(true);
+
+  const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
+  const [activeSubscriptions, setActiveSubscriptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Only redirect if not loading and no user - remove checkAuth dependency
   useEffect(() => {
@@ -57,6 +63,45 @@ export default function Dashboard() {
       router.push("/");
     }
   }, [user, isLoading, router]);
+
+  useEffect(() => {
+    const checkUserActiveStatus = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await checkActiveStatus();
+
+        if (response.success) {
+          const { hasActiveSubscription, activeSubscriptions: activeSubs } =
+            response.data;
+          setIsEncrypted(hasActiveSubscription);
+          setActiveSubscriptions(activeSubs || []);
+
+          if (!hasActiveSubscription) {
+            setError(
+              "No active subscriptions found. Please activate a subscription to use the encryptor."
+            );
+          }
+        } else {
+          setError("Failed to check subscription status");
+          setIsEncrypted(false);
+        }
+      } catch (err) {
+        console.error("Error checking active status:", err);
+        setError("Could not verify your subscription status");
+        setIsEncrypted(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUserActiveStatus();
+  }, [checkActiveStatus]);
+
+  useEffect(() => {
+    console.log("DDDD", activeSubscriptions);
+  }, [activeSubscriptions]);
 
   // Show loading while checking auth
   if (isLoading) {
@@ -186,17 +231,18 @@ export default function Dashboard() {
           <div className="flex justify-between">
             <div className="w-[58%] flex flex-col justify-between">
               <div className="bg-white flex items-center px-4 gap-2 h-[41%] w-full rounded-xl shadow-md">
-                <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full w-max whitespace-nowrap">
-                  Due Soon
-                </span>
-                <span className="text-lg whitespace-nowrap font-semibold text-gray-800">
-                  July 15, 2025
-                </span>
+                {isEncrypted ? (
+                  <>{getDeviceDueStatus(activeSubscriptions)}</>
+                ) : (
+                  <span className="text-lg whitespace-nowrap font-semibold text-gray-400">
+                    No Active Encryption
+                  </span>
+                )}
               </div>
 
               <div className="bg-white flex h-[41%] w-full rounded-xl p-1">
                 <Toggle
-                  initialState={notifications}
+                  initialState={isEncrypted}
                   onToggle={setNotifications}
                 />
               </div>
@@ -295,41 +341,43 @@ export default function Dashboard() {
             </Link>
           </div>
 
-          <div className="bg-white w-full min-h-[15rem] flex flex-col justify-between rounded-xl mb-4 py-4 px-4">
-            <div className="flex justify-between">
-              <span className="text-xl font-semibold">Device Health</span>
-              <Image
-                src="/goodHealth.png"
-                alt="health-icon"
-                width={80}
-                height={80}
-                className="rounded-full"
-              />
-            </div>
-
-            <div className="flex justify-between items-center">
-              <div className="flex flex-col">
-                <span className="text-gray-500 text-sm">
-                  Update is available
-                </span>
-                <div className={`flex items-center gap-2`}>
-                  <span>Status:</span>
-                  <span
-                    className={`${
-                      status === "good"
-                        ? "text-[#0F9D58]"
-                        : status === "bad"
-                        ? "text-[#FF3B30]"
-                        : "text-[#FFA500]"
-                    }`}
-                  >
-                    Critical
-                  </span>
-                </div>
+          <Link href="/bitdefender">
+            <div className="bg-white w-full min-h-[15rem] flex flex-col justify-between rounded-xl mb-4 py-4 px-4">
+              <div className="flex justify-between">
+                <span className="text-xl font-semibold">Device Health</span>
+                <Image
+                  src="/goodHealth.png"
+                  alt="health-icon"
+                  width={80}
+                  height={80}
+                  className="rounded-full"
+                />
               </div>
-              <ChevronRight />
+
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <span className="text-gray-500 text-sm">
+                    Update is available
+                  </span>
+                  <div className={`flex items-center gap-2`}>
+                    <span>Status:</span>
+                    <span
+                      className={`${
+                        status === "good"
+                          ? "text-[#0F9D58]"
+                          : status === "bad"
+                          ? "text-[#FF3B30]"
+                          : "text-[#FFA500]"
+                      }`}
+                    >
+                      Critical
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight />
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </ProtectedRoute>

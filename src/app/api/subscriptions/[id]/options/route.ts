@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+type Params = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export async function GET(request: NextRequest, { params }: Params) {
   const authHeader = request.headers.get("authorization");
   const token = authHeader?.split(" ")[1];
 
@@ -12,9 +15,9 @@ export async function GET(
   }
 
   try {
-    const { id } = params;
+    // Await the params since it's now a Promise
+    const { id } = await params;
 
-    // Validate ID format (optional)
     if (!id || id.trim() === "") {
       return NextResponse.json(
         { error: "Invalid subscription ID" },
@@ -35,17 +38,13 @@ export async function GET(
 
     const optionsResult = await response.json();
 
-    console.log("USER API response", optionsResult);
-
     if (!optionsResult.success) {
       throw new Error(
-        optionsResult?.message.toString() || "Fetching User Profile Failed"
+        optionsResult?.message?.toString() || "Fetching User Profile Failed"
       );
     }
 
     return NextResponse.json(optionsResult);
-
- 
   } catch (error) {
     console.error("Error fetching subscription:", error);
     return NextResponse.json(

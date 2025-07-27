@@ -1,8 +1,9 @@
+import { getBestClientIP } from "@/middleware/ipExtractor";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const authHeader = request.headers.get("authorization");
   const token = authHeader?.split(" ")[1];
@@ -12,10 +13,13 @@ export async function POST(
   }
 
   try {
-    const { id } = params;
+    // Get client IP
+    const clientIP = await getBestClientIP(request);
+
+    // Await the params
+    const { id } = await params;
     const { newPlan, paymentMethod } = await request.json();
 
-    // Validate ID format (optional)
     if (!id || id.trim() === "") {
       return NextResponse.json(
         { error: "Invalid subscription ID" },
@@ -37,17 +41,29 @@ export async function POST(
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "X-Client-IP": clientIP,
+          "X-Real-IP": clientIP,
         },
-        body: JSON.stringify({ subscriptionId: id, newPlan, paymentMethod }),
+        body: JSON.stringify({
+          subscriptionId: id,
+          newPlan,
+          paymentMethod,
+          clientIP: clientIP,
+          renewalTimestamp: new Date().toISOString(),
+        }),
       }
     );
 
     const optionsResult = await response.json();
 
-    console.log("RENEW API response", optionsResult);
+    console.log("Subscription renewal from IP:", clientIP, {
+      subscriptionId: id,
+      newPlan,
+      success: optionsResult.success,
+    });
 
     if (!optionsResult.success) {
-      throw new Error(optionsResult?.message.toString() || "Renewing Failed");
+      throw new Error(optionsResult?.message.toString() || "Renewal failed");
     }
 
     return NextResponse.json(optionsResult);

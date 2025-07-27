@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface Subscriptionaaaa {
   createdAt: string;
   deviceName: string;
@@ -138,6 +140,24 @@ export interface NewSubscriptionData {
   files: File[];
 }
 
+export interface ActiveStatusResponse {
+  success: boolean;
+  data: {
+    hasActiveSubscription: boolean;
+    activeCount: number;
+    activeSubscriptions: Array<{
+      _id: string;
+      imei: string;
+      deviceName: string;
+      plan: string;
+      endDate: string;
+      startDate: string;
+    }>;
+    message: string;
+  };
+}
+
+
 export interface AuthState {
   user: User | null;
   token: string | null;
@@ -166,4 +186,11 @@ export interface AuthState {
   searchDevice: (debouncedSearchQuery: any) => Promise<any>;
   addNewDevice: (data: NewDeviceData) => Promise<any>;
   addSubscription: (data: NewSubscriptionData) => Promise<any>;
+  checkActiveStatus: () => Promise<ActiveStatusResponse>;
 }
+
+export type DrawerRouteItem = {
+  label: string;
+  icon: ReactNode;
+  path: string;
+};

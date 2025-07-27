@@ -1,7 +1,7 @@
 "use client";
 
 import { ShieldBan, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ToggleSwitchProps = {
   initialState?: boolean;
@@ -32,9 +32,14 @@ export const Toggle = ({
     text: "Unsecure",
     trackColor: "bg-red-500",
   },
-  size = "md", // 'sm', 'md', 'lg'
+  size = "md",
 }: ToggleSwitchProps) => {
   const [isToggled, setIsToggled] = useState(initialState);
+
+  // ✅ Sync internal state when parent changes initialState
+  useEffect(() => {
+    setIsToggled(initialState);
+  }, [initialState]);
 
   const handleToggle = () => {
     const newState = !isToggled;
@@ -68,7 +73,7 @@ export const Toggle = ({
 
   return (
     <button
-      onClick={handleToggle}
+      // onClick={handleToggle}
       className={`
         relative inline-flex items-center rounded-xl transition-colors duration-300 ease-in-out p-0.5
         ${currentSize.track}
@@ -78,7 +83,6 @@ export const Toggle = ({
       role="switch"
       aria-checked={isToggled}
     >
-      {/* Thumb */}
       <div
         className={`
           inline-flex items-center justify-center rounded-xl bg-white shadow-lg
@@ -87,11 +91,9 @@ export const Toggle = ({
           ${isToggled ? currentSize.translate : "translate-x-0"}
         `}
       >
-        {/* Icon and Text Container */}
         <div
           className={`flex items-center gap-1 ${currentSize.text} font-semibold text-gray-700`}
         >
-          {/* <span className="text-current">{currentConfig.icon}</span> */}
           {currentConfig.icon}
           <span className="text-current">{currentConfig.text}</span>
         </div>

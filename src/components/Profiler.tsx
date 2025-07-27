@@ -1,36 +1,38 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogOut, User } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
-import { User as UserType } from "@/types/auth";
+import { CircleChevronLeft, LogOut } from "lucide-react";
+import type { User as UserType } from "@/types/auth";
+import { drawerRoutes } from "./DrawerRoutes";
 
-export default function ProfileDrawer({ user, onLogout }: {
+export default function ProfileDrawer({
+  user,
+  onLogout,
+}: {
   user: UserType;
   onLogout: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <>
-      {/* Profile Icon Button */}
+      {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="p-1 bg-white rounded-full shadow"
+        className="border border-gray-300 bg-white rounded-full shadow"
       >
-        {user.image ? (
-          //   <Image src={user.image} alt="Profile" width={32} height={32} className="rounded-full" />
-          <Image
-            src={user.image}
-            alt="avatar"
-            width={30}
-            height={30}
-            className="rounded-full"
-          />
-        ) : (
-          <User size={24} />
-        )}
+        <Image
+          src={user.image || "/Pixel-60.png"}
+          alt="avatar"
+          width={30}
+          height={30}
+          className="rounded-full border border-gray-400 shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out"
+        />
       </button>
 
       {/* Drawer */}
@@ -41,46 +43,88 @@ export default function ProfileDrawer({ user, onLogout }: {
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "tween" }}
-            className="fixed top-0 left-0 z-40 h-full w-64 bg-white shadow-lg flex flex-col"
+            className="fixed top-0 left-0 z-40 h-full w-[80%] bg-white shadow-lg flex flex-col"
           >
-            <div className="p-4 border-b border-gray-100">
+            {/* Header */}
+            <div className="relative p-4 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                {user.image ? (
-                  <Image
-                    src={user.image}
-                    alt="User"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
-                ) : (
-                  <User size={40} />
-                )}
-                {/* <div className="w-[40px] h-[40px] bg-transparent " /> */}
+                <Image
+                  src={user.image || "/Pixel-60.png"}
+                  alt="User"
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                />
                 <div>
                   <p className="font-semibold">{user.username}</p>
-                  <p className="text-sm text-gray-500">{user.email}</p>
+                  <p className="text-[12px] text-gray-500">{user.email}</p>
                 </div>
               </div>
-            </div>
 
-            {/* Add more profile-related content here */}
-            {/* <div className="flex-1 p-4 text-sm text-gray-600">
-              <p>This is your profile area.</p>
-            </div> */}
-
-            {/* Logout at bottom */}
-            <div className="p-4 border-t border-gray-100 mt-auto">
               <button
-                onClick={() => {
-                  onLogout();
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center justify-center gap-2 bg-red-500 text-white py-2 rounded hover:bg-red-600"
+                onClick={() => setIsOpen(false)}
+                className="absolute right-[-6%] top-[35%] bg-[#003883] w-8 h-8 rounded-full flex items-center justify-center"
               >
-                <LogOut size={16} /> Logout
+                <CircleChevronLeft size={40} color="#003883" fill="white" />
               </button>
             </div>
+
+            {/* Divider */}
+            <div className="w-full flex items-center justify-center py-2">
+              <div className="w-[85%] bg-gray-400 rounded-full h-[0.5px]" />
+            </div>
+
+            {/* Navigation Links */}
+            <div className="mb-6 py-4 text-sm text-gray-600">
+              {drawerRoutes.map(({ label, icon, path }) => {
+                const isActive = pathname === path;
+
+                return (
+                  <Link
+                    key={path}
+                    href={path}
+                    className={`
+                      flex items-center gap-2 w-full py-4 px-4 transition-all duration-200
+                      ${
+                        isActive
+                          ? "bg-[linear-gradient(to_right,rgba(46,218,253,0.15),rgba(46,218,253,0))]"
+                          : "bg-white"
+                      }
+                    `}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span
+                      className={`${
+                        isActive ? "text-[#003883]" : "text-black"
+                      }`}
+                    >
+                      {icon}
+                    </span>
+                    <span
+                      className={`text-[16px] font-medium ${
+                        isActive ? "text-[#003883]" : "text-black"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+            <button
+              className="flex items-center gap-2 w-full py-4 px-4 transition-all duration-200  bg-white"
+              onClick={() => {
+                onLogout();
+                setIsOpen(false);
+              }}
+            >
+              <span className="text-red-500">
+                <LogOut />
+              </span>
+              <span className="text-[16px] font-medium text-red-500">
+                Logout
+              </span>
+            </button>
           </motion.aside>
         )}
       </AnimatePresence>

@@ -131,6 +131,14 @@ export default function AuthForm({ mode }: AuthFormProps) {
         setVerificationEmail(err.email || email);
         setError(err.message);
       }
+
+      else if (mode === 'login' && err.message === "Invalid credentials") {
+        setError(
+          err.message ||
+            (mode === "login" ? "Invalid credentials" : "Registration failed")
+        );
+
+      }
       // Handle registration success with email verification required
       else if (mode === "register" && err.code === "REGISTRATION_SUCCESS_VERIFICATION_REQUIRED") {
         setShowRegistrationSuccess(true);

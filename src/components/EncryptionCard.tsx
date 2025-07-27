@@ -19,6 +19,7 @@ import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { getPlanDisplayName } from "@/config/pricing";
+import { SecureIcon } from "./Svg";
 
 const pi = Math.PI;
 const tau = 2 * pi;
@@ -78,27 +79,6 @@ interface OnboardedState {
 
 
 // Simple shield icon component
-const SecureIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 60,
-  color = "#22c55e",
-}) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <path
-      d="M12 2L3 7V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V7L12 2Z"
-      fill={color}
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M9 12L11 14L15 10"
-      stroke="white"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 type EncryptionCardProps = {
   subscription: Subscription;

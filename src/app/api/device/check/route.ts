@@ -5,10 +5,17 @@ export async function POST(request: NextRequest) {
   const token = authHeader?.split(" ")[1];
 
   if (!token) {
-    return NextResponse.json({ error: "Missing token" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized User" }, { status: 401 });
   }
+  const body = await request.json();
+  console.log("Request body:", body);
 
-  const { ip } = await request.json();
+  // const { imei } = await request.json();
+
+  const imei = body?.imei;
+  if (!imei) {
+    return NextResponse.json({ error: "IMEI is required" }, { status: 400 });
+  }
 
   try {
     // Replace with your actual API call
@@ -20,7 +27,7 @@ export async function POST(request: NextRequest) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ip }),
+        body: JSON.stringify({ imei }),
       }
     );
 

@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AuthState, User, RegisterData, NewDeviceData, NewSubscriptionData } from "@/types/auth";
+import {
+  AuthState,
+  User,
+  RegisterData,
+  NewDeviceData,
+  NewSubscriptionData,
+} from "@/types/auth";
+import { apiClient, initializeApiClient } from "@/utils/apiClient";
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -8,18 +15,18 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isLoading: true,
-      isCheckingAuth: false, // Add this to prevent multiple simultaneous calls
+      isCheckingAuth: false,
 
       login: async (email: string, password: string) => {
         set({ isLoading: true });
         try {
-          const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
+          // Use apiClient which automatically includes IP
+          const result = await apiClient.post("/api/auth/login", {
+            email,
+            password,
           });
 
-          const result = await res.json();
+          // console.log('RRR', result)
 
           if (!result.success) {
             if (result.data?.requiresVerification) {
@@ -33,12 +40,16 @@ export const useAuthStore = create<AuthState>()(
             throw new Error(result.error || "Login failed");
           }
 
-          set({
-            token: result?.data?.accessToken,
-          });
+          if (result?.data.accessToken) {
+            const token = result?.data?.accessToken;
+            set({ token });
 
-          // Fetch user data immediately after login
-          await get().fetchUserData();
+            // Initialize API client with token
+            initializeApiClient(token);
+
+            // Fetch user data immediately after login
+            await get().fetchUserData();
+          }
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -59,12 +70,10 @@ export const useAuthStore = create<AuthState>()(
             }
           });
 
-          const res = await fetch("/api/auth/register", {
-            method: "POST",
-            body: formData,
-          });
+          // Use apiClient which automatically includes IP in FormData
+          const result = await apiClient.post("/api/auth/register", formData);
 
-          const result = await res.json();
+          console.log('REGISTER Ressss', result)
 
           if (!result.success) {
             throw new Error(result?.error || "Registration failed");
@@ -80,9 +89,11 @@ export const useAuthStore = create<AuthState>()(
             throw error;
           }
 
-          set({
-            token: result?.data?.accessToken,
-          });
+          const token = result?.data?.accessToken;
+          set({ token });
+
+          // Initialize API client with token
+          initializeApiClient(token);
 
           // Fetch user data immediately after registration
           await get().fetchUserData();
@@ -94,9 +105,9 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ user: null, token: null, isLoading: false });
+        apiClient.removeAuthToken();
       },
 
-      // Separate function to fetch user data
       fetchUserData: async () => {
         const { token, isCheckingAuth } = get();
 
@@ -106,14 +117,8 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await fetch("/api/user", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          const userResult = await response.json();
+          initializeApiClient(token);
+          const userResult = await apiClient.get("/api/user");
 
           if (!userResult.success) {
             throw new Error("User Profile fetch failed");
@@ -139,23 +144,12 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await fetch("/api/user", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          const userResult = await response.json();
+          initializeApiClient(token);
+          const userResult = await apiClient.get("/api/user");
 
           if (!userResult.success) {
             throw new Error("User Profile retrieval failed");
           }
-
-          // set({
-          //   user: userResult?.data,
-          //   isLoading: false,
-          // });
 
           return userResult;
         } catch (error) {
@@ -168,13 +162,11 @@ export const useAuthStore = create<AuthState>()(
       checkAuth: async () => {
         const { token, isCheckingAuth } = get();
 
-        // Prevent multiple simultaneous calls
         if (isCheckingAuth) {
           console.log("Auth check already in progress, skipping...");
           return;
         }
 
-        // If no token, clear user and stop loading
         if (!token) {
           set({ user: null, isLoading: false });
           return;
@@ -183,14 +175,8 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, isCheckingAuth: true });
 
         try {
-          const response = await fetch("/api/user", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          const userResult = await response.json();
+          initializeApiClient(token);
+          const userResult = await apiClient.get("/api/user");
 
           if (!userResult.success) {
             console.log("Token invalid, clearing auth state");
@@ -220,8 +206,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkOnboarding: async (imei: string) => {
-        // set({ isLoading: true });
-
         const { token, isCheckingAuth } = get();
 
         if (!token || isCheckingAuth) {
@@ -229,26 +213,17 @@ export const useAuthStore = create<AuthState>()(
           return;
         }
 
-        try {
-          const res = await fetch("/api/device/check", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ imei }),
-          });
+        console.log("Checking onboarding for IMEI:", imei);
 
-          const result = await res.json();
+        try {
+          initializeApiClient(token);
+          const result = await apiClient.post("/api/device/check", { imei });
 
           if (!result.success) {
             throw new Error(result.error || "Device check failed");
           }
 
-          set({
-            isLoading: false,
-          });
-
+          set({ isLoading: false });
           return result;
         } catch (error) {
           set({ isLoading: false });
@@ -257,8 +232,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setupDevice: async (imei: string, deviceName: string) => {
-        // set({ isLoading: true });
-
         const { token, isCheckingAuth } = get();
 
         if (!token || isCheckingAuth) {
@@ -267,25 +240,17 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const res = await fetch("/api/device/setup", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ imei, deviceName }),
+          initializeApiClient(token);
+          const result = await apiClient.post("/api/device/setup", {
+            imei,
+            deviceName,
           });
-
-          const result = await res.json();
 
           if (!result.success) {
             throw new Error(result.error || "OTP Setup failed");
           }
 
-          set({
-            isLoading: false,
-          });
-
+          set({ isLoading: false });
           return result;
         } catch (error) {
           set({ isLoading: false });
@@ -305,22 +270,14 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const response = await fetch(`/api/subscriptions/activate`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              subscriptionId,
-              imei,
-              totpCode,
-            }),
+          initializeApiClient(token);
+          const result = await apiClient.post("/api/subscriptions/activate", {
+            subscriptionId,
+            imei,
+            totpCode,
           });
 
-          const result = await response.json();
-
-          if (!response.ok) {
+          if (!result.success) {
             return {
               success: false,
               error: result.error || "Failed to activate subscription",
@@ -341,8 +298,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       fetchOptionsById: async (subscriptionId: string) => {
-        // set({ isLoading: true });
-
         const { token, isCheckingAuth } = get();
 
         if (!token || isCheckingAuth) {
@@ -351,28 +306,16 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const res = await fetch(
-            `/api/subscriptions/${subscriptionId}/options`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              // body: JSON.stringify({ imei }),
-            }
+          initializeApiClient(token);
+          const result = await apiClient.get(
+            `/api/subscriptions/${subscriptionId}/options`
           );
-
-          const result = await res.json();
 
           if (!result.success) {
             throw new Error(result.error || "Options fetch failed");
           }
 
-          set({
-            isLoading: false,
-          });
-
+          set({ isLoading: false });
           return result;
         } catch (error) {
           set({ isLoading: false });
@@ -381,8 +324,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkEncryption: async (ip: string) => {
-        // set({ isLoading: true });
-
         const { token, isCheckingAuth } = get();
 
         if (!token || isCheckingAuth) {
@@ -391,32 +332,16 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const res = await fetch(
-            `/api/device/check/encryption`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ ip }),
-            }
-          );
-
-          console.log("RESSSS:", res);
-
-          const result = await res.json();
-
-
+          initializeApiClient(token);
+          const result = await apiClient.post("/api/device/check/encryption", {
+            ip,
+          });
 
           if (!result.success) {
             throw new Error(result.error || "IP check fetch failed");
           }
 
-          set({
-            isLoading: false,
-          });
-
+          set({ isLoading: false });
           return result;
         } catch (error) {
           set({ isLoading: false });
@@ -429,8 +354,6 @@ export const useAuthStore = create<AuthState>()(
         newPlan: string,
         paymentMethod: string
       ) => {
-        // set({ isLoading: true });
-
         const { token, isCheckingAuth } = get();
 
         if (!token || isCheckingAuth) {
@@ -439,28 +362,21 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const res = await fetch(
+          initializeApiClient(token);
+          const result = await apiClient.post(
             `/api/subscriptions/${subscriptionId}/renew`,
             {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ subscriptionId, newPlan, paymentMethod }),
+              subscriptionId,
+              newPlan,
+              paymentMethod,
             }
           );
 
-          const result = await res.json();
-
           if (!result.success) {
-            throw new Error(result.error || "Subscription renewal ailed");
+            throw new Error(result.error || "Subscription renewal failed");
           }
 
-          set({
-            isLoading: false,
-          });
-
+          set({ isLoading: false });
           return result;
         } catch (error) {
           set({ isLoading: false });
@@ -469,8 +385,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       searchDevice: async (debouncedSearchQuery: any) => {
-        // set({ isLoading: true });
-
         const { token, isCheckingAuth } = get();
 
         if (!token || isCheckingAuth) {
@@ -479,28 +393,16 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const res = await fetch(
-            `/api/device/search?q=${encodeURIComponent(debouncedSearchQuery)}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              // body: JSON.stringify({ subscriptionId, newPlan, paymentMethod }),
-            }
+          initializeApiClient(token);
+          const result = await apiClient.get(
+            `/api/device/search?q=${encodeURIComponent(debouncedSearchQuery)}`
           );
-
-          const result = await res.json();
 
           if (!result.success) {
             throw new Error(result.error || "Search failed");
           }
 
-          set({
-            isLoading: false,
-          });
-
+          set({ isLoading: false });
           return result;
         } catch (error) {
           set({ isLoading: false });
@@ -509,8 +411,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       addNewDevice: async (data: NewDeviceData) => {
-        // set({ isLoading: true });
-
         const { token, isCheckingAuth } = get();
 
         if (!token || isCheckingAuth) {
@@ -530,25 +430,14 @@ export const useAuthStore = create<AuthState>()(
             }
           });
 
-          const res = await fetch("/api/device/add", {
-            method: "POST",
-            headers: {
-              // "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          });
-
-          const result = await res.json();
+          initializeApiClient(token);
+          const result = await apiClient.post("/api/device/add", formData);
 
           if (!result.success) {
             throw new Error(result.error || "Adding New Device failed");
           }
 
-          set({
-            isLoading: false,
-          });
-
+          set({ isLoading: false });
           return result;
         } catch (error) {
           set({ isLoading: false });
@@ -557,8 +446,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       addSubscription: async (data: NewSubscriptionData) => {
-        // set({ isLoading: true });
-
         const { token, isCheckingAuth } = get();
 
         if (!token || isCheckingAuth) {
@@ -578,36 +465,55 @@ export const useAuthStore = create<AuthState>()(
             }
           });
 
-          const res = await fetch("/api/device/subscribe", {
-            method: "POST",
-            headers: {
-              // "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-          });
-
-          const result = await res.json();
+          initializeApiClient(token);
+          const result = await apiClient.post(
+            "/api/device/subscribe",
+            formData
+          );
 
           if (!result.success) {
-            throw new Error(result.error || "Adding New Device failed");
+            throw new Error(result.error || "Adding Subscription failed");
           }
 
-          set({
-            isLoading: false,
-          });
-
+          set({ isLoading: false });
           return result;
         } catch (error) {
           set({ isLoading: false });
           throw error;
         }
       },
+
+      checkActiveStatus: async () => {
+        const { token, isCheckingAuth } = get();
+
+        if (!token || isCheckingAuth) {
+          throw new Error("No authentication token available");
+        }
+
+        try {
+          const response = await fetch("/api/subscriptions/status", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const result = await response.json();
+
+          if (!result.success) {
+            throw new Error(result.error || "Failed to check active status");
+          }
+
+          return result;
+        } catch (error) {
+          console.error("Check active status error:", error);
+          throw error;
+        }
+      },
     }),
     {
       name: "auth-storage",
-      // Remove the onRehydrateStorage callback to prevent automatic checkAuth
-      // We'll handle this manually in the app
     }
   )
 );

@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  extractClientIP,
+  extractIPFromBody,
+  getBestClientIP,
+} from "@/middleware/ipExtractor";
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  const token = authHeader?.split(" ")[1];
+  // const authHeader = request.headers.get("authorization");
+  // const token = authHeader?.split(" ")[1];
 
-  if (!token) {
-    return NextResponse.json({ error: "Missing token" }, { status: 401 });
-  }
-  
+  // if (!token) {
+  //   return NextResponse.json({ error: "Missing token" }, { status: 401 });
+  // }
+
   try {
+    // Get client IP from multiple sources
+    const clientIP = await getBestClientIP(request);
+
     const formData = await request.formData();
 
     // Extract all form data
@@ -20,6 +28,7 @@ export async function POST(request: NextRequest) {
       imei: formData.get("imei"),
       phoneNumber: formData.get("phoneNumber"),
       plan: formData.get("plan"),
+      clientIP: clientIP, // Add IP to registration data
     };
 
     // Handle file uploads
@@ -42,13 +51,23 @@ export async function POST(request: NextRequest) {
     const response = await fetch(`${process.env.API_BASE_URL}/auth/create`, {
       method: "POST",
       body: apiFormData,
+      headers: {
+        // Add IP to headers as well for backend processing
+        "X-Client-IP": clientIP,
+        "X-Real-IP": clientIP,
+      },
     });
 
     const result = await response.json();
 
-    // console.log("REG API response", result);
+    console.log("Login attempt from IP:", result);
 
-    if (!response.ok) {
+    console.log("Registration API response with IP:", {
+      clientIP,
+      success: result.success,
+    });
+
+    if (!result.success) {
       return NextResponse.json(
         {
           success: false,
